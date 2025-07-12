@@ -15,7 +15,7 @@ function FileDetail() {
   const [index, setIndex] = useState(0);
   const [newTag, setNewTag] = useState("");
   const [allTags, setAllTags] = useState([]);
-  const api = "http://localhost:5000";
+  const api = `http://${window.location.hostname}:5000`;
 
   const fetchTags = () => {
     fetch(`${api}/tags`)

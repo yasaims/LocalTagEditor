@@ -16,12 +16,18 @@ cd backend
 python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
-flask run
+flask run --host 0.0.0.0
 ```
 
 ### Frontend
 ```bash
 cd frontend
 npm install
-npm start
+# On Linux/macOS
+HOST=0.0.0.0 npm start
+# On Windows (cmd)
+set HOST=0.0.0.0&&npm start
 ```
+
+Access the frontend at `http://<server-ip>:3000` and the backend at
+`http://<server-ip>:5000` from other devices on your local network.
