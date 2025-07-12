@@ -24,6 +24,29 @@ def classify_path(path):
         return 'video'
     return 'other'
 
+def find_first_media(folder):
+    """Return first image or video file inside folder."""
+    if not os.path.isdir(folder):
+        return None, None
+    for name in sorted(os.listdir(folder)):
+        full = os.path.join(folder, name)
+        if os.path.isfile(full):
+            ext = os.path.splitext(full)[1].lower()
+            if ext in IMAGE_EXTS:
+                return full, 'image'
+            if ext in VIDEO_EXTS:
+                return full, 'video'
+    return None, None
+
+def thumbnail_type_for(path):
+    t = classify_path(path)
+    if t in ('image', 'video'):
+        return t
+    if t == 'folder':
+        _, media_type = find_first_media(path)
+        return media_type
+    return None
+
 class File(db.Model):
     __tablename__ = 'files'
     id = db.Column(db.Integer, primary_key=True)
@@ -73,6 +96,7 @@ def list_files():
             'id': f.id,
             'path': f.path,
             'type': classify_path(f.path),
+            'thumbnail_type': thumbnail_type_for(f.path),
             'tags': [{'id': t.id, 'name': t.name} for t in f.tags]
         })
     return jsonify(result)
@@ -84,6 +108,7 @@ def get_file(file_id):
         'id': f.id,
         'path': f.path,
         'type': classify_path(f.path),
+        'thumbnail_type': thumbnail_type_for(f.path),
         'tags': [{'id': t.id, 'name': t.name} for t in f.tags]
     })
 
@@ -115,6 +140,11 @@ def remove_tag(file_id, tag_id):
 @app.route('/files/<int:file_id>/content', methods=['GET'])
 def file_content(file_id):
     file = File.query.get_or_404(file_id)
+    if os.path.isdir(file.path):
+        thumb, _ = find_first_media(file.path)
+        if thumb and os.path.exists(thumb):
+            return send_file(thumb)
+        return jsonify({'error': 'file not found'}), 404
     if os.path.exists(file.path):
         return send_file(file.path)
     return jsonify({'error': 'file not found'}), 404
