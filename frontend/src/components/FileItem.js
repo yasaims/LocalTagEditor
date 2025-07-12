@@ -12,6 +12,12 @@ function FileItem({ file, refresh }) {
   const [newTag, setNewTag] = useState('');
   const api = 'http://localhost:5000';
 
+  const deleteItem = async () => {
+    if (!window.confirm('Delete this entry?')) return;
+    await fetch(`${api}/files/${file.id}`, { method: 'DELETE' });
+    refresh();
+  };
+
   const addTag = async () => {
     if (!newTag) return;
     await fetch(`${api}/files/${file.id}/tags`, {
@@ -51,7 +57,17 @@ function FileItem({ file, refresh }) {
 
   return (
     <Paper sx={{ p: 1, mb: 1 }}>
-      <Box sx={{ mb: 1 }}>{preview()}</Box>
+      <Typography
+        component={Link}
+        to={`/files/${file.id}`}
+        variant="h6"
+        sx={{ textDecoration: 'none', color: 'inherit', mb: 1 }}
+      >
+        {file.path.split('/').pop()}
+      </Typography>
+      <Box component={Link} to={`/files/${file.id}`} sx={{ mb: 1, display: 'block' }}>
+        {preview()}
+      </Box>
       <Typography variant="body2" sx={{ mb: 1 }}>
         Path: {file.path} ({file.type})
       </Typography>
@@ -64,7 +80,7 @@ function FileItem({ file, refresh }) {
           />
         ))}
       </Stack>
-      <Stack direction="row" spacing={1}>
+      <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
         <TextField
           value={newTag}
           onChange={e => setNewTag(e.target.value)}
@@ -72,10 +88,8 @@ function FileItem({ file, refresh }) {
           size="small"
         />
         <Button variant="outlined" onClick={addTag}>Add</Button>
+        <Button color="error" onClick={deleteItem}>Delete</Button>
       </Stack>
-      <Button component={Link} to={`/files/${file.id}`} variant="text" sx={{ mt: 1 }}>
-        Preview
-      </Button>
     </Paper>
   );
 }

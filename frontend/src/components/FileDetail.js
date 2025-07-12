@@ -11,6 +11,8 @@ import TextField from '@mui/material/TextField';
 function FileDetail() {
   const { id } = useParams();
   const [file, setFile] = useState(null);
+  const [items, setItems] = useState([]);
+  const [index, setIndex] = useState(0);
   const [newTag, setNewTag] = useState('');
   const api = 'http://localhost:5000';
 
@@ -19,6 +21,12 @@ function FileDetail() {
       const res = await fetch(`${api}/files/${id}`);
       const data = await res.json();
       setFile(data);
+      if (data.type === 'folder') {
+        const r = await fetch(`${api}/files/${id}/items`);
+        const itemsData = await r.json();
+        setItems(itemsData);
+        setIndex(0);
+      }
     };
     fetchFile();
   }, [id]);
@@ -26,7 +34,14 @@ function FileDetail() {
   const refresh = () => {
     fetch(`${api}/files/${id}`)
       .then(res => res.json())
-      .then(setFile);
+      .then(data => {
+        setFile(data);
+        if (data.type === 'folder') {
+          fetch(`${api}/files/${id}/items`)
+            .then(r => r.json())
+            .then(setItems);
+        }
+      });
   };
 
   const addTag = async () => {
@@ -61,7 +76,28 @@ function FileDetail() {
       return <video controls width="400" src={`${api}/files/${file.id}/content`} />;
     }
     if (file.type === 'folder') {
-      return <Typography>Folder: {file.path}</Typography>;
+      if (!items.length) return <Typography>Folder: {file.path}</Typography>;
+      const current = items[index];
+      const src = `${api}/files/${file.id}/content/${encodeURIComponent(current.name)}`;
+      const handlePrev = () => setIndex((index - 1 + items.length) % items.length);
+      const handleNext = () => setIndex((index + 1) % items.length);
+      return (
+        <Box sx={{ position: 'relative', maxWidth: 400 }}>
+          {current.type === 'image' ? (
+            <img src={src} alt={current.name} style={{ width: '100%' }} />
+          ) : (
+            <video controls width="100%" src={src} />
+          )}
+          <Box
+            sx={{ position: 'absolute', top: 0, left: 0, bottom: 0, width: '50%', cursor: 'pointer' }}
+            onClick={handlePrev}
+          />
+          <Box
+            sx={{ position: 'absolute', top: 0, right: 0, bottom: 0, width: '50%', cursor: 'pointer' }}
+            onClick={handleNext}
+          />
+        </Box>
+      );
     }
     return <a href={file.path}>{file.path}</a>;
   };
@@ -93,6 +129,26 @@ function FileDetail() {
           </Stack>
         </Paper>
       </Box>
+      {file.type === 'folder' && items.length > 0 && (
+        <Stack direction="row" spacing={1} sx={{ mt: 2, flexWrap: 'wrap' }}>
+          {items.map((it, idx) => {
+            const src = `${api}/files/${file.id}/content/${encodeURIComponent(it.name)}`;
+            return (
+              <Box
+                key={it.name}
+                onClick={() => setIndex(idx)}
+                sx={{ cursor: 'pointer', border: idx === index ? '2px solid #1976d2' : '1px solid #ccc' }}
+              >
+                {it.type === 'image' ? (
+                  <img src={src} alt={it.name} width={80} />
+                ) : (
+                  <video width={80} src={src} />
+                )}
+              </Box>
+            );
+          })}
+        </Stack>
+      )}
       <Typography variant="body2" sx={{ mt: 2 }}>
         Path: {file.path}
       </Typography>

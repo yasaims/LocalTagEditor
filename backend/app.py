@@ -137,6 +137,14 @@ def remove_tag(file_id, tag_id):
         db.session.commit()
     return jsonify({'message': 'tag removed'})
 
+@app.route('/files/<int:file_id>', methods=['DELETE'])
+def delete_file(file_id):
+    file = File.query.get_or_404(file_id)
+    FileTag.query.filter_by(file_id=file_id).delete()
+    db.session.delete(file)
+    db.session.commit()
+    return jsonify({'message': 'file deleted'})
+
 @app.route('/files/<int:file_id>/content', methods=['GET'])
 def file_content(file_id):
     file = File.query.get_or_404(file_id)
@@ -148,6 +156,33 @@ def file_content(file_id):
     if os.path.exists(file.path):
         return send_file(file.path)
     return jsonify({'error': 'file not found'}), 404
+
+@app.route('/files/<int:file_id>/content/<path:filename>', methods=['GET'])
+def folder_content_item(file_id, filename):
+    file = File.query.get_or_404(file_id)
+    if not os.path.isdir(file.path):
+        return jsonify({'error': 'not a folder'}), 400
+    path = os.path.join(file.path, filename)
+    abs_base = os.path.abspath(file.path)
+    abs_target = os.path.abspath(path)
+    if not abs_target.startswith(abs_base):
+        return jsonify({'error': 'invalid path'}), 400
+    if os.path.exists(abs_target):
+        return send_file(abs_target)
+    return jsonify({'error': 'file not found'}), 404
+
+@app.route('/files/<int:file_id>/items', methods=['GET'])
+def list_folder_items(file_id):
+    file = File.query.get_or_404(file_id)
+    if not os.path.isdir(file.path):
+        return jsonify([])
+    items = []
+    for name in sorted(os.listdir(file.path)):
+        full = os.path.join(file.path, name)
+        t = classify_path(full)
+        if t in ('image', 'video'):
+            items.append({'name': name, 'type': t})
+    return jsonify(items)
 
 @app.route('/tags', methods=['GET'])
 def list_tags():
