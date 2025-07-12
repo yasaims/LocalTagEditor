@@ -68,12 +68,12 @@ function FileDetail() {
         <img
           src={`${api}/files/${file.id}/content`}
           alt={file.path}
-          style={{ maxWidth: '400px' }}
+          style={{ maxHeight: '100vh' }}
         />
       );
     }
     if (file.thumbnail_type === 'video') {
-      return <video controls width="400" src={`${api}/files/${file.id}/content`} />;
+      return <video controls style={{ maxHeight: '100vh' }} src={`${api}/files/${file.id}/content`} />;
     }
     if (file.type === 'folder') {
       if (!items.length) return <Typography>Folder: {file.path}</Typography>;
@@ -82,11 +82,11 @@ function FileDetail() {
       const handlePrev = () => setIndex((index - 1 + items.length) % items.length);
       const handleNext = () => setIndex((index + 1) % items.length);
       return (
-        <Box sx={{ position: 'relative', maxWidth: 400 }}>
+        <Box sx={{ position: 'relative', maxWidth: '100%' }}>
           {current.type === 'image' ? (
-            <img src={src} alt={current.name} style={{ width: '100%' }} />
+            <img src={src} alt={current.name} style={{ width: '100%', maxHeight: '100vh' }} />
           ) : (
-            <video controls width="100%" src={src} />
+            <video controls style={{ width: '100%', maxHeight: '100vh' }} src={src} />
           )}
           <Box
             sx={{ position: 'absolute', top: 0, left: 0, bottom: 0, width: '50%', cursor: 'pointer' }}
@@ -107,30 +107,38 @@ function FileDetail() {
       <Button component={Link} to="/" variant="outlined" sx={{ mb: 2 }}>
         Back
       </Button>
-      <Box sx={{ display: 'flex' }}>
-        <Box sx={{ mr: 2 }}>{preview()}</Box>
-        <Paper sx={{ p: 2, width: 250 }}>
-          <Typography variant="h6" sx={{ mb: 1 }}>
-            Tags
-          </Typography>
-          <Stack direction="row" spacing={1} flexWrap="wrap" sx={{ mb: 1 }}>
-            {file.tags.map(t => (
-              <Chip key={t.id} label={t.name} onDelete={() => removeTag(t.id)} />
-            ))}
-          </Stack>
-          <Stack direction="row" spacing={1}>
-            <TextField
-              value={newTag}
-              onChange={e => setNewTag(e.target.value)}
-              placeholder="new tag"
-              size="small"
-            />
-            <Button variant="outlined" onClick={addTag}>Add</Button>
-          </Stack>
-        </Paper>
-      </Box>
+      <Box sx={{ mr: '260px' }}>{preview()}</Box>
+      <Paper
+        sx={{
+          p: 2,
+          width: 250,
+          position: 'fixed',
+          top: 0,
+          right: 0,
+          bottom: 0,
+          overflow: 'auto'
+        }}
+      >
+        <Typography variant="h6" sx={{ mb: 1 }}>
+          Tags
+        </Typography>
+        <Stack direction="row" spacing={1} flexWrap="wrap" sx={{ mb: 1 }}>
+          {file.tags.map(t => (
+            <Chip key={t.id} label={t.name} onDelete={() => removeTag(t.id)} />
+          ))}
+        </Stack>
+        <Stack direction="row" spacing={1}>
+          <TextField
+            value={newTag}
+            onChange={e => setNewTag(e.target.value)}
+            placeholder="new tag"
+            size="small"
+          />
+          <Button variant="outlined" onClick={addTag}>Add</Button>
+        </Stack>
+      </Paper>
       {file.type === 'folder' && items.length > 0 && (
-        <Stack direction="row" spacing={1} sx={{ mt: 2, flexWrap: 'wrap' }}>
+        <Stack direction="row" spacing={1} sx={{ mt: 2, flexWrap: 'wrap', mr: '260px' }}>
           {items.map((it, idx) => {
             const src = `${api}/files/${file.id}/content/${encodeURIComponent(it.name)}`;
             return (
@@ -149,7 +157,7 @@ function FileDetail() {
           })}
         </Stack>
       )}
-      <Typography variant="body2" sx={{ mt: 2 }}>
+      <Typography variant="body2" sx={{ mt: 2, mr: '260px' }}>
         Path: {file.path}
       </Typography>
     </Box>

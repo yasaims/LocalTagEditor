@@ -59,46 +59,16 @@ function FileItem({ file, refresh }) {
 
   return (
     <Paper sx={{ p: 1, mb: 1 }}>
-      <Box sx={{ position: 'relative', mb: 1 }}>
-        <Box component={Link} to={`/files/${file.id}`} sx={{ display: 'block' }}>
-          {preview()}
-        </Box>
-        <Box
-          sx={{
-            position: 'absolute',
-            bottom: 0,
-            left: 0,
-            right: 0,
-            bgcolor: 'rgba(0,0,0,0.6)',
-            color: '#fff',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            px: 1,
-            py: 0.5,
-          }}
-        >
-          <Typography variant="subtitle2" noWrap>
-            {name}
-          </Typography>
-          <Box
-            onClick={deleteItem}
-            sx={{
-              ml: 1,
-              bgcolor: 'red',
-              color: 'white',
-              borderRadius: '50%',
-              width: 20,
-              height: 20,
-              lineHeight: '20px',
-              textAlign: 'center',
-              fontWeight: 'bold',
-              cursor: 'pointer',
-            }}
-          >
-            x
-          </Box>
-        </Box>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+        <Typography variant="subtitle2" sx={{ textTransform: 'uppercase' }} noWrap>
+          {name}
+        </Typography>
+        <Button variant="outlined" color="error" size="small" onClick={deleteItem}>
+          Delete
+        </Button>
+      </Box>
+      <Box component={Link} to={`/files/${file.id}`} sx={{ display: 'block', mb: 1 }}>
+        {preview()}
       </Box>
       <Typography variant="body2" sx={{ mb: 1 }}>
         Path: {file.path} ({file.type})
