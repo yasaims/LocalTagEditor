@@ -1,13 +1,14 @@
 import React from 'react';
+import Stack from '@mui/material/Stack';
 import FileItem from './FileItem';
 
 function FileList({ files, refresh }) {
   return (
-    <div>
+    <Stack>
       {files.map(file => (
         <FileItem key={file.id} file={file} refresh={refresh} />
       ))}
-    </div>
+    </Stack>
   );
 }
 

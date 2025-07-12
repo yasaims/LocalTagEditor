@@ -1,4 +1,7 @@
 import React, { useState } from 'react';
+import TextField from '@mui/material/TextField';
+import Button from '@mui/material/Button';
+import Stack from '@mui/material/Stack';
 
 function FileRegister({ onRegistered }) {
   const [path, setPath] = useState('');
@@ -16,10 +19,18 @@ function FileRegister({ onRegistered }) {
   };
 
   return (
-    <div style={{ marginBottom: '1rem' }}>
-      <input value={path} onChange={e => setPath(e.target.value)} placeholder="file path" style={{ width: '300px' }} />
-      <button onClick={register}>Register</button>
-    </div>
+    <Stack direction="row" spacing={1}>
+      <TextField
+        value={path}
+        onChange={e => setPath(e.target.value)}
+        placeholder="file path"
+        size="small"
+        sx={{ width: 300 }}
+      />
+      <Button variant="contained" onClick={register}>
+        Register
+      </Button>
+    </Stack>
   );
 }
 

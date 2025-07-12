@@ -1,4 +1,7 @@
 import React, { useEffect, useState } from 'react';
+import Container from '@mui/material/Container';
+import Typography from '@mui/material/Typography';
+import Box from '@mui/material/Box';
 import FileList from './components/FileList';
 import TagSelector from './components/TagSelector';
 import FileRegister from './components/FileRegister';
@@ -26,12 +29,16 @@ function App() {
   useEffect(() => { fetchFiles(); }, [selectedTags]);
 
   return (
-    <div style={{ padding: '1rem' }}>
-      <h1>Local Tag Editor</h1>
-      <FileRegister onRegistered={fetchFiles} />
+    <Container maxWidth="md" sx={{ py: 2 }}>
+      <Typography variant="h4" component="h1" gutterBottom>
+        Local Tag Editor
+      </Typography>
+      <Box sx={{ mb: 2 }}>
+        <FileRegister onRegistered={fetchFiles} />
+      </Box>
       <TagSelector tags={tags} selected={selectedTags} onChange={setSelectedTags} />
       <FileList files={files} refresh={fetchFiles} />
-    </div>
+    </Container>
   );
 }
 

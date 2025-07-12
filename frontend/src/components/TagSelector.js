@@ -1,4 +1,7 @@
 import React from 'react';
+import FormGroup from '@mui/material/FormGroup';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Checkbox from '@mui/material/Checkbox';
 
 function TagSelector({ tags, selected, onChange }) {
   const toggle = (tag) => {
@@ -10,18 +13,20 @@ function TagSelector({ tags, selected, onChange }) {
   };
 
   return (
-    <div style={{ marginBottom: '1rem' }}>
+    <FormGroup row sx={{ mb: 2 }}>
       {tags.map(tag => (
-        <label key={tag} style={{ marginRight: '0.5rem' }}>
-          <input
-            type="checkbox"
-            checked={selected.includes(tag)}
-            onChange={() => toggle(tag)}
-          />
-          {tag}
-        </label>
+        <FormControlLabel
+          key={tag}
+          control={
+            <Checkbox
+              checked={selected.includes(tag)}
+              onChange={() => toggle(tag)}
+            />
+          }
+          label={tag}
+        />
       ))}
-    </div>
+    </FormGroup>
   );
 }
 

@@ -1,4 +1,11 @@
 import React, { useState } from 'react';
+import Paper from '@mui/material/Paper';
+import Typography from '@mui/material/Typography';
+import Chip from '@mui/material/Chip';
+import TextField from '@mui/material/TextField';
+import Button from '@mui/material/Button';
+import Stack from '@mui/material/Stack';
+import Box from '@mui/material/Box';
 
 function FileItem({ file, refresh }) {
   const [newTag, setNewTag] = useState('');
@@ -34,23 +41,30 @@ function FileItem({ file, refresh }) {
   };
 
   return (
-    <div style={{ border: '1px solid #ccc', padding: '0.5rem', marginBottom: '0.5rem' }}>
-      <div>{preview()}</div>
-      <div>Path: {file.path}</div>
-      <div>
-        Tags:
+    <Paper sx={{ p: 1, mb: 1 }}>
+      <Box sx={{ mb: 1 }}>{preview()}</Box>
+      <Typography variant="body2" sx={{ mb: 1 }}>
+        Path: {file.path}
+      </Typography>
+      <Stack direction="row" spacing={1} sx={{ mb: 1 }} flexWrap="wrap">
         {file.tags.map(t => (
-          <span key={t.id} style={{ marginRight: '0.3rem' }}>
-            {t.name}
-            <button onClick={() => removeTag(t.id)}>x</button>
-          </span>
+          <Chip
+            key={t.id}
+            label={t.name}
+            onDelete={() => removeTag(t.id)}
+          />
         ))}
-      </div>
-      <div>
-        <input value={newTag} onChange={e => setNewTag(e.target.value)} placeholder="new tag" />
-        <button onClick={addTag}>Add</button>
-      </div>
-    </div>
+      </Stack>
+      <Stack direction="row" spacing={1}>
+        <TextField
+          value={newTag}
+          onChange={e => setNewTag(e.target.value)}
+          placeholder="new tag"
+          size="small"
+        />
+        <Button variant="outlined" onClick={addTag}>Add</Button>
+      </Stack>
+    </Paper>
   );
 }
 
