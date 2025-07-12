@@ -73,18 +73,6 @@ function FileDetail() {
   if (!file) return null;
 
   const preview = () => {
-    if (file.thumbnail_type === 'image') {
-      return (
-        <img
-          src={`${api}/files/${file.id}/content`}
-          alt={file.path}
-          style={{ maxHeight: '100vh' }}
-        />
-      );
-    }
-    if (file.thumbnail_type === 'video') {
-      return <video controls style={{ maxHeight: '100vh' }} src={`${api}/files/${file.id}/content`} />;
-    }
     if (file.type === 'folder') {
       if (!items.length) return <Typography>Folder: {file.path}</Typography>;
       const current = items[index];
@@ -108,6 +96,18 @@ function FileDetail() {
           />
         </Box>
       );
+    }
+    if (file.thumbnail_type === 'image') {
+      return (
+        <img
+          src={`${api}/files/${file.id}/content`}
+          alt={file.path}
+          style={{ maxHeight: '100vh' }}
+        />
+      );
+    }
+    if (file.thumbnail_type === 'video') {
+      return <video controls style={{ maxHeight: '100vh' }} src={`${api}/files/${file.id}/content`} />;
     }
     return <a href={file.path}>{file.path}</a>;
   };
