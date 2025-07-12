@@ -1,9 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import FormGroup from '@mui/material/FormGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Checkbox from '@mui/material/Checkbox';
+import TextField from '@mui/material/TextField';
 
 function TagSelector({ tags, selected, onChange }) {
+  const [filter, setFilter] = useState('');
+
   const toggle = (tag) => {
     if (selected.includes(tag)) {
       onChange(selected.filter(t => t !== tag));
@@ -12,21 +15,32 @@ function TagSelector({ tags, selected, onChange }) {
     }
   };
 
+  const filtered = tags.filter(t => t.toLowerCase().includes(filter.toLowerCase()));
+
   return (
-    <FormGroup row sx={{ mb: 2 }}>
-      {tags.map(tag => (
-        <FormControlLabel
-          key={tag}
-          control={
-            <Checkbox
-              checked={selected.includes(tag)}
-              onChange={() => toggle(tag)}
-            />
-          }
-          label={tag}
-        />
-      ))}
-    </FormGroup>
+    <>
+      <TextField
+        value={filter}
+        onChange={e => setFilter(e.target.value)}
+        placeholder="search tags"
+        size="small"
+        sx={{ mb: 1 }}
+      />
+      <FormGroup row sx={{ mb: 2 }}>
+        {filtered.map(tag => (
+          <FormControlLabel
+            key={tag}
+            control={
+              <Checkbox
+                checked={selected.includes(tag)}
+                onChange={() => toggle(tag)}
+              />
+            }
+            label={tag}
+          />
+        ))}
+      </FormGroup>
+    </>
   );
 }
 

@@ -3,10 +3,15 @@ import { useParams, Link } from 'react-router-dom';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
+import Paper from '@mui/material/Paper';
+import Stack from '@mui/material/Stack';
+import Chip from '@mui/material/Chip';
+import TextField from '@mui/material/TextField';
 
 function FileDetail() {
   const { id } = useParams();
   const [file, setFile] = useState(null);
+  const [newTag, setNewTag] = useState('');
   const api = 'http://localhost:5000';
 
   useEffect(() => {
@@ -18,10 +23,32 @@ function FileDetail() {
     fetchFile();
   }, [id]);
 
+  const refresh = () => {
+    fetch(`${api}/files/${id}`)
+      .then(res => res.json())
+      .then(setFile);
+  };
+
+  const addTag = async () => {
+    if (!newTag) return;
+    await fetch(`${api}/files/${id}/tags`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ tag: newTag })
+    });
+    setNewTag('');
+    refresh();
+  };
+
+  const removeTag = async (tagId) => {
+    await fetch(`${api}/files/${id}/tags/${tagId}`, { method: 'DELETE' });
+    refresh();
+  };
+
   if (!file) return null;
 
   const preview = () => {
-    if (file.type === 'image') {
+    if (file.thumbnail_type === 'image') {
       return (
         <img
           src={`${api}/files/${file.id}/content`}
@@ -30,7 +57,7 @@ function FileDetail() {
         />
       );
     }
-    if (file.type === 'video') {
+    if (file.thumbnail_type === 'video') {
       return <video controls width="400" src={`${api}/files/${file.id}/content`} />;
     }
     if (file.type === 'folder') {
@@ -44,8 +71,31 @@ function FileDetail() {
       <Button component={Link} to="/" variant="outlined" sx={{ mb: 2 }}>
         Back
       </Button>
-      <Box sx={{ mb: 2 }}>{preview()}</Box>
-      <Typography variant="body2">Path: {file.path}</Typography>
+      <Box sx={{ display: 'flex' }}>
+        <Box sx={{ mr: 2 }}>{preview()}</Box>
+        <Paper sx={{ p: 2, width: 250 }}>
+          <Typography variant="h6" sx={{ mb: 1 }}>
+            Tags
+          </Typography>
+          <Stack direction="row" spacing={1} flexWrap="wrap" sx={{ mb: 1 }}>
+            {file.tags.map(t => (
+              <Chip key={t.id} label={t.name} onDelete={() => removeTag(t.id)} />
+            ))}
+          </Stack>
+          <Stack direction="row" spacing={1}>
+            <TextField
+              value={newTag}
+              onChange={e => setNewTag(e.target.value)}
+              placeholder="new tag"
+              size="small"
+            />
+            <Button variant="outlined" onClick={addTag}>Add</Button>
+          </Stack>
+        </Paper>
+      </Box>
+      <Typography variant="body2" sx={{ mt: 2 }}>
+        Path: {file.path}
+      </Typography>
     </Box>
   );
 }

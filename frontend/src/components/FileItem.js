@@ -31,7 +31,7 @@ function FileItem({ file, refresh }) {
   };
 
   const preview = () => {
-    if (file.type === 'image') {
+    if (file.thumbnail_type === 'image') {
       return (
         <img
           src={`${api}/files/${file.id}/content`}
@@ -40,7 +40,7 @@ function FileItem({ file, refresh }) {
         />
       );
     }
-    if (file.type === 'video') {
+    if (file.thumbnail_type === 'video') {
       return <video controls width="200" src={`${api}/files/${file.id}/content`} />;
     }
     if (file.type === 'folder') {
@@ -50,7 +50,7 @@ function FileItem({ file, refresh }) {
   };
 
   return (
-    <Paper component={Link} to={`/files/${file.id}`} sx={{ p: 1, mb: 1, textDecoration: 'none', color: 'inherit' }}>
+    <Paper sx={{ p: 1, mb: 1 }}>
       <Box sx={{ mb: 1 }}>{preview()}</Box>
       <Typography variant="body2" sx={{ mb: 1 }}>
         Path: {file.path} ({file.type})
@@ -73,6 +73,9 @@ function FileItem({ file, refresh }) {
         />
         <Button variant="outlined" onClick={addTag}>Add</Button>
       </Stack>
+      <Button component={Link} to={`/files/${file.id}`} variant="text" sx={{ mt: 1 }}>
+        Preview
+      </Button>
     </Paper>
   );
 }
