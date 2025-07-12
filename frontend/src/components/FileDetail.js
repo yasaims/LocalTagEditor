@@ -14,7 +14,14 @@ function FileDetail() {
   const [items, setItems] = useState([]);
   const [index, setIndex] = useState(0);
   const [newTag, setNewTag] = useState('');
+  const [allTags, setAllTags] = useState([]);
   const api = 'http://localhost:5000';
+
+  const fetchTags = () => {
+    fetch(`${api}/tags`)
+      .then(res => res.json())
+      .then(data => setAllTags(data.map(t => t.name)));
+  };
 
   useEffect(() => {
     const fetchFile = async () => {
@@ -27,6 +34,7 @@ function FileDetail() {
         setItems(itemsData);
         setIndex(0);
       }
+      fetchTags();
     };
     fetchFile();
   }, [id]);
@@ -41,17 +49,19 @@ function FileDetail() {
             .then(r => r.json())
             .then(setItems);
         }
+        fetchTags();
       });
   };
 
-  const addTag = async () => {
-    if (!newTag) return;
+  const addTag = async (name) => {
+    const tagName = name ?? newTag;
+    if (!tagName) return;
     await fetch(`${api}/files/${id}/tags`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ tag: newTag })
+      body: JSON.stringify({ tag: tagName })
     });
-    setNewTag('');
+    if (!name) setNewTag('');
     refresh();
   };
 
@@ -134,8 +144,23 @@ function FileDetail() {
             placeholder="new tag"
             size="small"
           />
-          <Button variant="outlined" onClick={addTag}>Add</Button>
+          <Button variant="outlined" onClick={() => addTag()}>Add</Button>
         </Stack>
+        {allTags.length > 0 && (
+          <Stack direction="row" spacing={1} flexWrap="wrap" sx={{ mt: 1 }}>
+            {allTags
+              .filter(t => !file.tags.some(ft => ft.name === t))
+              .map(t => (
+                <Chip
+                  key={t}
+                  label={t}
+                  onClick={() => addTag(t)}
+                  variant="outlined"
+                  sx={{ cursor: 'pointer' }}
+                />
+              ))}
+          </Stack>
+        )}
       </Paper>
       {file.type === 'folder' && items.length > 0 && (
         <Stack direction="row" spacing={1} sx={{ mt: 2, flexWrap: 'wrap', mr: '260px' }}>
