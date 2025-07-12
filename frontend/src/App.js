@@ -5,6 +5,8 @@ import Box from '@mui/material/Box';
 import FileList from './components/FileList';
 import TagSelector from './components/TagSelector';
 import FileRegister from './components/FileRegister';
+import FileDetail from './components/FileDetail';
+import { Routes, Route } from 'react-router-dom';
 
 function App() {
   const [files, setFiles] = useState([]);
@@ -33,11 +35,25 @@ function App() {
       <Typography variant="h4" component="h1" gutterBottom>
         Local Tag Editor
       </Typography>
-      <Box sx={{ mb: 2 }}>
-        <FileRegister onRegistered={fetchFiles} />
-      </Box>
-      <TagSelector tags={tags} selected={selectedTags} onChange={setSelectedTags} />
-      <FileList files={files} refresh={fetchFiles} />
+      <Routes>
+        <Route
+          path="/"
+          element={(
+            <>
+              <Box sx={{ mb: 2 }}>
+                <FileRegister onRegistered={fetchFiles} />
+              </Box>
+              <TagSelector
+                tags={tags}
+                selected={selectedTags}
+                onChange={setSelectedTags}
+              />
+              <FileList files={files} refresh={fetchFiles} />
+            </>
+          )}
+        />
+        <Route path="/files/:id" element={<FileDetail />} />
+      </Routes>
     </Container>
   );
 }
