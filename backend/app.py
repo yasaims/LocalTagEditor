@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_file
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from datetime import datetime
@@ -10,6 +10,19 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
 CORS(app)
+
+IMAGE_EXTS = {'.png', '.jpg', '.jpeg', '.gif'}
+VIDEO_EXTS = {'.mp4', '.webm', '.ogg'}
+
+def classify_path(path):
+    if os.path.isdir(path):
+        return 'folder'
+    ext = os.path.splitext(path)[1].lower()
+    if ext in IMAGE_EXTS:
+        return 'image'
+    if ext in VIDEO_EXTS:
+        return 'video'
+    return 'other'
 
 class File(db.Model):
     __tablename__ = 'files'
@@ -44,7 +57,7 @@ def register_file():
         file = File(path=path)
         db.session.add(file)
         db.session.commit()
-    return jsonify({'id': file.id, 'path': file.path})
+    return jsonify({'id': file.id, 'path': file.path, 'type': classify_path(file.path)})
 
 @app.route('/files', methods=['GET'])
 def list_files():
@@ -59,9 +72,20 @@ def list_files():
         result.append({
             'id': f.id,
             'path': f.path,
+            'type': classify_path(f.path),
             'tags': [{'id': t.id, 'name': t.name} for t in f.tags]
         })
     return jsonify(result)
+
+@app.route('/files/<int:file_id>', methods=['GET'])
+def get_file(file_id):
+    f = File.query.get_or_404(file_id)
+    return jsonify({
+        'id': f.id,
+        'path': f.path,
+        'type': classify_path(f.path),
+        'tags': [{'id': t.id, 'name': t.name} for t in f.tags]
+    })
 
 @app.route('/files/<int:file_id>/tags', methods=['POST'])
 def add_tag(file_id):
@@ -87,6 +111,13 @@ def remove_tag(file_id, tag_id):
         file.tags.remove(tag)
         db.session.commit()
     return jsonify({'message': 'tag removed'})
+
+@app.route('/files/<int:file_id>/content', methods=['GET'])
+def file_content(file_id):
+    file = File.query.get_or_404(file_id)
+    if os.path.exists(file.path):
+        return send_file(file.path)
+    return jsonify({'error': 'file not found'}), 404
 
 @app.route('/tags', methods=['GET'])
 def list_tags():

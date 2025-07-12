@@ -6,6 +6,7 @@ import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
 import Box from '@mui/material/Box';
+import { Link } from 'react-router-dom';
 
 function FileItem({ file, refresh }) {
   const [newTag, setNewTag] = useState('');
@@ -30,21 +31,29 @@ function FileItem({ file, refresh }) {
   };
 
   const preview = () => {
-    const ext = file.path.split('.').pop().toLowerCase();
-    if (['png', 'jpg', 'jpeg', 'gif'].includes(ext)) {
-      return <img src={file.path} alt={file.path} style={{ maxWidth: '200px' }} />;
+    if (file.type === 'image') {
+      return (
+        <img
+          src={`${api}/files/${file.id}/content`}
+          alt={file.path}
+          style={{ maxWidth: '200px' }}
+        />
+      );
     }
-    if (['mp4', 'webm', 'ogg'].includes(ext)) {
-      return <video controls width="200" src={file.path} />;
+    if (file.type === 'video') {
+      return <video controls width="200" src={`${api}/files/${file.id}/content`} />;
+    }
+    if (file.type === 'folder') {
+      return <Typography>Folder: {file.path}</Typography>;
     }
     return <a href={file.path}>{file.path}</a>;
   };
 
   return (
-    <Paper sx={{ p: 1, mb: 1 }}>
+    <Paper component={Link} to={`/files/${file.id}`} sx={{ p: 1, mb: 1, textDecoration: 'none', color: 'inherit' }}>
       <Box sx={{ mb: 1 }}>{preview()}</Box>
       <Typography variant="body2" sx={{ mb: 1 }}>
-        Path: {file.path}
+        Path: {file.path} ({file.type})
       </Typography>
       <Stack direction="row" spacing={1} sx={{ mb: 1 }} flexWrap="wrap">
         {file.tags.map(t => (
