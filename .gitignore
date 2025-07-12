@@ -1,4 +1,5 @@
 __pycache__/
 node_modules/
-backend/database.db
 .env
+venv
+backend/instance/database.db
