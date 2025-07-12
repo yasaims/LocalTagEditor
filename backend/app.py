@@ -99,6 +99,12 @@ def list_files():
             'thumbnail_type': thumbnail_type_for(f.path),
             'tags': [{'id': t.id, 'name': t.name} for t in f.tags]
         })
+    if len(tag_names) == 1 and len(result) == 0:
+        tag = Tag.query.filter_by(name=tag_names[0]).first()
+        if tag:
+            FileTag.query.filter_by(tag_id=tag.id).delete()
+            db.session.delete(tag)
+            db.session.commit()
     return jsonify(result)
 
 @app.route('/files/<int:file_id>', methods=['GET'])

@@ -55,18 +55,50 @@ function FileItem({ file, refresh }) {
     return <a href={file.path}>{file.path}</a>;
   };
 
+  const name = file.path.split('/').pop();
+
   return (
     <Paper sx={{ p: 1, mb: 1 }}>
-      <Typography
-        component={Link}
-        to={`/files/${file.id}`}
-        variant="h6"
-        sx={{ textDecoration: 'none', color: 'inherit', mb: 1 }}
-      >
-        {file.path.split('/').pop()}
-      </Typography>
-      <Box component={Link} to={`/files/${file.id}`} sx={{ mb: 1, display: 'block' }}>
-        {preview()}
+      <Box sx={{ position: 'relative', mb: 1 }}>
+        <Box component={Link} to={`/files/${file.id}`} sx={{ display: 'block' }}>
+          {preview()}
+        </Box>
+        <Box
+          sx={{
+            position: 'absolute',
+            bottom: 0,
+            left: 0,
+            right: 0,
+            bgcolor: 'rgba(0,0,0,0.6)',
+            color: '#fff',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            px: 1,
+            py: 0.5,
+          }}
+        >
+          <Typography variant="subtitle2" noWrap>
+            {name}
+          </Typography>
+          <Box
+            onClick={deleteItem}
+            sx={{
+              ml: 1,
+              bgcolor: 'red',
+              color: 'white',
+              borderRadius: '50%',
+              width: 20,
+              height: 20,
+              lineHeight: '20px',
+              textAlign: 'center',
+              fontWeight: 'bold',
+              cursor: 'pointer',
+            }}
+          >
+            x
+          </Box>
+        </Box>
       </Box>
       <Typography variant="body2" sx={{ mb: 1 }}>
         Path: {file.path} ({file.type})
@@ -88,7 +120,6 @@ function FileItem({ file, refresh }) {
           size="small"
         />
         <Button variant="outlined" onClick={addTag}>Add</Button>
-        <Button color="error" onClick={deleteItem}>Delete</Button>
       </Stack>
     </Paper>
   );
