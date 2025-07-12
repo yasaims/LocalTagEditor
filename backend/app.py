@@ -3,6 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from datetime import datetime
 import os
+import re
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
@@ -13,6 +14,10 @@ CORS(app)
 
 IMAGE_EXTS = {'.png', '.jpg', '.jpeg', '.gif'}
 VIDEO_EXTS = {'.mp4', '.webm', '.ogg'}
+
+def natural_sort_key(s):
+    """Return a key for natural sorting (handles numbers in strings)."""
+    return [int(text) if text.isdigit() else text.lower() for text in re.split(r'(\d+)', s)]
 
 def classify_path(path):
     if os.path.isdir(path):
@@ -28,7 +33,7 @@ def find_first_media(folder):
     """Return first image or video file inside folder."""
     if not os.path.isdir(folder):
         return None, None
-    for name in sorted(os.listdir(folder)):
+    for name in sorted(os.listdir(folder), key=natural_sort_key):
         full = os.path.join(folder, name)
         if os.path.isfile(full):
             ext = os.path.splitext(full)[1].lower()
@@ -183,7 +188,7 @@ def list_folder_items(file_id):
     if not os.path.isdir(file.path):
         return jsonify([])
     items = []
-    for name in sorted(os.listdir(file.path)):
+    for name in sorted(os.listdir(file.path), key=natural_sort_key):
         full = os.path.join(file.path, name)
         t = classify_path(full)
         if t in ('image', 'video'):
