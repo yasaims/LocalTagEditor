@@ -64,7 +64,11 @@ function FileItem({ file, refresh }) {
       <Box sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}>
         <Typography
           variant="subtitle2"
-          sx={{ textTransform: "uppercase" }}
+          sx={{
+            textTransform: "uppercase",
+            fontWeight: "bold",
+            fontSize: "1.275rem",
+          }}
           noWrap
         >
           {name}
