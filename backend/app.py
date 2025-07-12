@@ -12,7 +12,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 CORS(app)
 
-IMAGE_EXTS = {'.png', '.jpg', '.jpeg', '.gif'}
+IMAGE_EXTS = {'.png', '.jpg', '.jpeg', '.gif', '.webp'}
 VIDEO_EXTS = {'.mp4', '.webm', '.ogg'}
 
 def natural_sort_key(s):
