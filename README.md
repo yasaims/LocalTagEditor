@@ -13,15 +13,32 @@ This repository contains a simple tag-based file manager that runs entirely on a
 ### Backend
 ```bash
 cd backend
-python3 -m venv venv
+python -m venv venv
+# On Windows use: venv\Scripts\activate
 source venv/bin/activate
 pip install -r requirements.txt
-flask run
+# Run on 0.0.0.0 so other devices on the network can reach it
+python app.py
 ```
 
 ### Frontend
 ```bash
 cd frontend
 npm install
+```
+To start the development server so that other devices can access it:
+```bash
+# Replace <PC_IP> with the IP address of your PC
+export HOST=0.0.0.0
+export REACT_APP_API_URL=http://<PC_IP>:5000
 npm start
 ```
+
+On Windows `cmd` use:
+```cmd
+set HOST=0.0.0.0
+set REACT_APP_API_URL=http://<PC_IP>:5000
+npm start
+```
+
+Now open `http://<PC_IP>:3000` on your smartphone browser to use the app.

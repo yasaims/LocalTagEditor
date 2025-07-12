@@ -15,7 +15,8 @@ function FileDetail() {
   const [index, setIndex] = useState(0);
   const [newTag, setNewTag] = useState("");
   const [allTags, setAllTags] = useState([]);
-  const api = "http://localhost:5000";
+  // Use REACT_APP_API_URL when provided for network access
+  const api = process.env.REACT_APP_API_URL || "http://localhost:5000";
 
   const fetchTags = () => {
     fetch(`${api}/tags`)

@@ -201,4 +201,5 @@ def list_tags():
     return jsonify([{'id': t.id, 'name': t.name} for t in tags])
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    # Bind to 0.0.0.0 so the server can be reached from other devices
+    app.run(debug=True, host='0.0.0.0')
