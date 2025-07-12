@@ -10,7 +10,7 @@ import { Link } from "react-router-dom";
 
 function FileItem({ file, refresh }) {
   const [newTag, setNewTag] = useState("");
-  const api = "http://localhost:5000";
+  const api = `http://${window.location.hostname}:5000`;
 
   const deleteItem = async () => {
     if (!window.confirm("Delete this entry?")) return;

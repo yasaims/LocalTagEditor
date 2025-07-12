@@ -5,7 +5,7 @@ import Stack from '@mui/material/Stack';
 
 function FileRegister({ onRegistered }) {
   const [path, setPath] = useState('');
-  const api = 'http://localhost:5000';
+  const api = `http://${window.location.hostname}:5000`;
 
   const register = async () => {
     if (!path) return;
