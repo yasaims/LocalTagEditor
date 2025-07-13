@@ -17,7 +17,8 @@ python -m venv venv
 # On Windows use: venv\Scripts\activate
 source venv/bin/activate
 pip install -r requirements.txt
-# Run on 0.0.0.0 so other devices on the network can reach it
+# Optional: copy `backend/.env.example` to `backend/.env` to configure the server
+cp backend/.env.example backend/.env
 python app.py
 ```
 
@@ -28,17 +29,11 @@ npm install
 ```
 To start the development server so that other devices can access it:
 ```bash
-# Replace <PC_IP> with the IP address of your PC
-export HOST=0.0.0.0
-export REACT_APP_API_URL=http://<PC_IP>:5000
+cp frontend/.env.example frontend/.env
+# Edit frontend/.env and replace <PC_IP> with the IP address of your PC
 npm start
 ```
 
-On Windows `cmd` use:
-```cmd
-set HOST=0.0.0.0
-set REACT_APP_API_URL=http://<PC_IP>:5000
-npm start
-```
+Create the `.env` file the same way on Windows.
 
 Now open `http://<PC_IP>:3000` on your smartphone browser to use the app.

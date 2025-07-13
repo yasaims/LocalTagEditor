@@ -4,6 +4,9 @@ from flask_cors import CORS
 from datetime import datetime
 import os
 import re
+from dotenv import load_dotenv
+
+load_dotenv()
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
@@ -201,5 +204,8 @@ def list_tags():
     return jsonify([{'id': t.id, 'name': t.name} for t in tags])
 
 if __name__ == '__main__':
-    # Bind to 0.0.0.0 so the server can be reached from other devices
-    app.run(debug=True, host='0.0.0.0')
+    # Allow configuring host, port and debug from environment variables
+    host = os.getenv('FLASK_HOST', '0.0.0.0')
+    port = int(os.getenv('FLASK_PORT', '5000'))
+    debug = os.getenv('FLASK_DEBUG', 'True').lower() == 'true'
+    app.run(debug=debug, host=host, port=port)
