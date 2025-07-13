@@ -13,15 +13,27 @@ This repository contains a simple tag-based file manager that runs entirely on a
 ### Backend
 ```bash
 cd backend
-python3 -m venv venv
+python -m venv venv
+# On Windows use: venv\Scripts\activate
 source venv/bin/activate
 pip install -r requirements.txt
-flask run
+# Optional: copy `backend/.env.example` to `backend/.env` to configure the server
+cp backend/.env.example backend/.env
+python app.py
 ```
 
 ### Frontend
 ```bash
 cd frontend
 npm install
+```
+To start the development server so that other devices can access it:
+```bash
+cp frontend/.env.example frontend/.env
+# Edit frontend/.env and replace <PC_IP> with the IP address of your PC
 npm start
 ```
+
+Create the `.env` file the same way on Windows.
+
+Now open `http://<PC_IP>:3000` on your smartphone browser to use the app.

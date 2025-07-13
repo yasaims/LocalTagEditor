@@ -5,7 +5,8 @@ import Stack from '@mui/material/Stack';
 
 function FileRegister({ onRegistered }) {
   const [path, setPath] = useState('');
-  const api = 'http://localhost:5000';
+  // Backend base URL; override with REACT_APP_API_URL for remote access
+  const api = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
   const register = async () => {
     if (!path) return;

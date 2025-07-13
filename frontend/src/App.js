@@ -11,7 +11,8 @@ function App() {
   const [files, setFiles] = useState([]);
   const [tags, setTags] = useState([]);
   const [selectedTags, setSelectedTags] = useState([]);
-  const api = 'http://localhost:5000';
+  // Allow overriding the API URL so the app can be accessed from other devices
+  const api = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
   const fetchFiles = async () => {
     const params = selectedTags.map(t => `tag=${encodeURIComponent(t)}`).join('&');
