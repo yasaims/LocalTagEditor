@@ -7,6 +7,7 @@ import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
 import Chip from "@mui/material/Chip";
 import TextField from "@mui/material/TextField";
+import useMediaQuery from "@mui/material/useMediaQuery";
 
 function FileDetail() {
   const { id } = useParams();
@@ -15,6 +16,7 @@ function FileDetail() {
   const [index, setIndex] = useState(0);
   const [newTag, setNewTag] = useState("");
   const [allTags, setAllTags] = useState([]);
+  const isSmall = useMediaQuery('(max-width:600px)');
   // Use REACT_APP_API_URL when provided for network access
   const api = process.env.REACT_APP_API_URL || "http://localhost:5000";
 
@@ -150,16 +152,17 @@ function FileDetail() {
       <Typography variant="h6" sx={{ mb: 1 }}>
         {title}
       </Typography>
-      <Box sx={{ mr: "260px" }}>{preview()}</Box>
+      <Box sx={{ mr: isSmall ? 0 : "260px" }}>{preview()}</Box>
       <Paper
         sx={{
           p: 2,
-          width: 250,
-          position: "fixed",
-          top: 0,
-          right: 0,
-          bottom: 0,
+          width: isSmall ? "100%" : 250,
+          position: isSmall ? "static" : "fixed",
+          top: isSmall ? "auto" : 0,
+          right: isSmall ? "auto" : 0,
+          bottom: isSmall ? "auto" : 0,
           overflow: "auto",
+          mt: isSmall ? 2 : 0,
         }}
       >
         <Typography variant="h6" sx={{ mb: 1 }}>
@@ -201,7 +204,7 @@ function FileDetail() {
         <Stack
           direction="row"
           spacing={1}
-          sx={{ mt: 2, flexWrap: "wrap", mr: "260px" }}
+          sx={{ mt: 2, flexWrap: "wrap", mr: isSmall ? 0 : "260px" }}
         >
           {items.map((it, idx) => {
             const src = `${api}/files/${file.id}/content/${encodeURIComponent(
@@ -227,7 +230,7 @@ function FileDetail() {
           })}
         </Stack>
       )}
-      <Typography variant="body2" sx={{ mt: 2, mr: "260px" }}>
+      <Typography variant="body2" sx={{ mt: 2, mr: isSmall ? 0 : "260px" }}>
         Path: {file.path}
       </Typography>
     </Box>
