@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import Drawer from '@mui/material/Drawer';
+import useMediaQuery from '@mui/material/useMediaQuery';
 import FileList from './components/FileList';
 import TagSelector from './components/TagSelector';
 import FileRegister from './components/FileRegister';
@@ -11,6 +14,8 @@ function App() {
   const [files, setFiles] = useState([]);
   const [tags, setTags] = useState([]);
   const [selectedTags, setSelectedTags] = useState([]);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const isSmall = useMediaQuery('(max-width:600px)');
   // Allow overriding the API URL so the app can be accessed from other devices
   const api = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
@@ -30,35 +35,57 @@ function App() {
   useEffect(() => { fetchTags(); }, []);
   useEffect(() => { fetchFiles(); }, [selectedTags]);
 
+  const sidebar = (
+    <Box sx={{ width: 240, p: 2, bgcolor: '#f5f5f5' }}>
+      <Typography
+        component={Link}
+        to="/"
+        variant="h5"
+        sx={{ textDecoration: 'none', color: 'inherit', mb: 2, display: 'block' }}
+      >
+        Local Tag Editor
+      </Typography>
+      <TagSelector tags={tags} selected={selectedTags} onChange={setSelectedTags} />
+    </Box>
+  );
+
+  const routes = (
+    <Routes>
+      <Route
+        path="/"
+        element={(
+          <>
+            <Box sx={{ mb: 2 }}>
+              <FileRegister onRegistered={fetchFiles} />
+            </Box>
+            <FileList files={files} refresh={fetchFiles} />
+          </>
+        )}
+      />
+      <Route path="/files/:id" element={<FileDetail />} />
+    </Routes>
+  );
+
   return (
     <Box sx={{ display: 'flex', height: '100vh' }}>
-      <Box sx={{ width: 240, p: 2, bgcolor: '#f5f5f5' }}>
-        <Typography
-          component={Link}
-          to="/"
-          variant="h5"
-          sx={{ textDecoration: 'none', color: 'inherit', mb: 2, display: 'block' }}
-        >
-          Local Tag Editor
-        </Typography>
-        <TagSelector tags={tags} selected={selectedTags} onChange={setSelectedTags} />
-      </Box>
-      <Box sx={{ flexGrow: 1, p: 2, overflow: 'auto' }}>
-        <Routes>
-          <Route
-            path="/"
-            element={(
-              <>
-                <Box sx={{ mb: 2 }}>
-                  <FileRegister onRegistered={fetchFiles} />
-                </Box>
-                <FileList files={files} refresh={fetchFiles} />
-              </>
-            )}
-          />
-          <Route path="/files/:id" element={<FileDetail />} />
-        </Routes>
-      </Box>
+      {isSmall ? (
+        <>
+          <Drawer open={drawerOpen} onClose={() => setDrawerOpen(false)}>
+            {sidebar}
+          </Drawer>
+          <Box sx={{ flexGrow: 1, p: 2, overflow: 'auto', width: '100%' }}>
+            <Button variant="outlined" onClick={() => setDrawerOpen(true)} sx={{ mb: 2 }}>
+              Tags
+            </Button>
+            {routes}
+          </Box>
+        </>
+      ) : (
+        <>
+          {sidebar}
+          <Box sx={{ flexGrow: 1, p: 2, overflow: 'auto' }}>{routes}</Box>
+        </>
+      )}
     </Box>
   );
 }
