@@ -11,6 +11,7 @@ function App() {
   const [files, setFiles] = useState([]);
   const [tags, setTags] = useState([]);
   const [selectedTags, setSelectedTags] = useState([]);
+  const [page, setPage] = useState(1);
   // Allow overriding the API URL so the app can be accessed from other devices
   const api = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
@@ -27,8 +28,16 @@ function App() {
     setTags(data.map(t => t.name));
   };
 
+  const handleRegistered = async () => {
+    await fetchFiles();
+    setPage(1);
+  };
+
   useEffect(() => { fetchTags(); }, []);
-  useEffect(() => { fetchFiles(); }, [selectedTags]);
+  useEffect(() => {
+    setPage(1);
+    fetchFiles();
+  }, [selectedTags]);
 
   return (
     <Box sx={{ display: 'flex', height: '100vh' }}>
@@ -50,9 +59,14 @@ function App() {
             element={(
               <>
                 <Box sx={{ mb: 2 }}>
-                  <FileRegister onRegistered={fetchFiles} />
+                  <FileRegister onRegistered={handleRegistered} />
                 </Box>
-                <FileList files={files} refresh={fetchFiles} />
+                <FileList
+                  files={files}
+                  refresh={fetchFiles}
+                  page={page}
+                  onPageChange={setPage}
+                />
               </>
             )}
           />
