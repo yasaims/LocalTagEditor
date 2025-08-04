@@ -73,7 +73,10 @@ function App() {
           <Drawer open={drawerOpen} onClose={() => setDrawerOpen(false)}>
             {sidebar}
           </Drawer>
-          <Box sx={{ flexGrow: 1, p: 2, overflow: 'auto', width: '100%' }}>
+          <Box
+            id="content"
+            sx={{ flexGrow: 1, p: 2, overflow: 'auto', width: '100%' }}
+          >
             <Button variant="outlined" onClick={() => setDrawerOpen(true)} sx={{ mb: 2 }}>
               Tags
             </Button>
@@ -83,7 +86,9 @@ function App() {
       ) : (
         <>
           {sidebar}
-          <Box sx={{ flexGrow: 1, p: 2, overflow: 'auto' }}>{routes}</Box>
+          <Box id="content" sx={{ flexGrow: 1, p: 2, overflow: 'auto' }}>
+            {routes}
+          </Box>
         </>
       )}
     </Box>
