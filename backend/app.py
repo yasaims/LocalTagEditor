@@ -18,7 +18,20 @@ db = SQLAlchemy(app)
 CORS(app)
 
 IMAGE_EXTS = {'.png', '.jpg', '.jpeg', '.gif', '.webp'}
-VIDEO_EXTS = {'.mp4', '.webm', '.ogg'}
+# Recognize a broader range of common video formats so that thumbnails are
+# requested for them and not treated as generic files.
+VIDEO_EXTS = {
+    '.mp4',
+    '.webm',
+    '.ogg',
+    '.avi',
+    '.mov',
+    '.mkv',
+    '.wmv',
+    '.mpg',
+    '.mpeg',
+    '.m4v',
+}
 
 def natural_sort_key(s):
     """Return a key for natural sorting (handles numbers in strings)."""
