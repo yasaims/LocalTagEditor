@@ -10,10 +10,14 @@ function FileRegister({ onRegistered }) {
 
   const register = async () => {
     if (!path) return;
+    let p = path.trim();
+    if (p.startsWith('"') && p.endsWith('"')) {
+      p = p.slice(1, -1);
+    }
     await fetch(`${api}/files`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ path })
+      body: JSON.stringify({ path: p })
     });
     setPath('');
     onRegistered();

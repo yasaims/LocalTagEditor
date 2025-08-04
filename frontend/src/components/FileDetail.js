@@ -87,41 +87,43 @@ function FileDetail() {
       const handleNext = () => setIndex((index + 1) % items.length);
       return (
         <Box sx={{ position: "relative", maxWidth: "100%" }}>
-          {current.type === "image" ? (
-            <img
-              src={src}
-              alt={current.name}
-              style={{ width: "50%", maxHeight: "100vh" }}
-            />
-          ) : (
+          {current.type === "image" && (
+            <>
+              <img
+                src={src}
+                alt={current.name}
+                style={{ width: "50%", maxHeight: "100vh" }}
+              />
+              <Box
+                sx={{
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
+                  bottom: 0,
+                  width: "50%",
+                  cursor: "pointer",
+                }}
+                onClick={handlePrev}
+              />
+              <Box
+                sx={{
+                  position: "absolute",
+                  top: 0,
+                  right: 0,
+                  bottom: 0,
+                  width: "50%",
+                  cursor: "pointer",
+                }}
+                onClick={handleNext}
+              />
+            </>
+          )}
+          {current.type === "video" && (
             <video
-              controls
               style={{ width: "100%", maxHeight: "100vh" }}
               src={src}
             />
           )}
-          <Box
-            sx={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              bottom: 0,
-              width: "50%",
-              cursor: "pointer",
-            }}
-            onClick={handlePrev}
-          />
-          <Box
-            sx={{
-              position: "absolute",
-              top: 0,
-              right: 0,
-              bottom: 0,
-              width: "50%",
-              cursor: "pointer",
-            }}
-            onClick={handleNext}
-          />
         </Box>
       );
     }
@@ -223,7 +225,12 @@ function FileDetail() {
                 {it.type === "image" ? (
                   <img src={src} alt={it.name} width={80} />
                 ) : (
-                  <video width={80} src={src} />
+                  <video
+                    width={80}
+                    src={src}
+                    controls
+                    onClick={(e) => e.stopPropagation()}
+                  />
                 )}
               </Box>
             );

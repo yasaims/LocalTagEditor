@@ -83,6 +83,9 @@ def register_file():
     path = data.get('path')
     if not path:
         return jsonify({'error': 'path required'}), 400
+    path = path.strip()
+    if len(path) >= 2 and path.startswith('"') and path.endswith('"'):
+        path = path[1:-1]
     file = File.query.filter_by(path=path).first()
     if not file:
         file = File(path=path)
