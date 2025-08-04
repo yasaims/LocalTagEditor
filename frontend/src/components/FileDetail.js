@@ -100,28 +100,32 @@ function FileDetail() {
               src={src}
             />
           )}
-          <Box
-            sx={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              bottom: 0,
-              width: "50%",
-              cursor: "pointer",
-            }}
-            onClick={handlePrev}
-          />
-          <Box
-            sx={{
-              position: "absolute",
-              top: 0,
-              right: 0,
-              bottom: 0,
-              width: "50%",
-              cursor: "pointer",
-            }}
-            onClick={handleNext}
-          />
+          {current.type !== "video" && (
+            <>
+              <Box
+                sx={{
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
+                  bottom: 0,
+                  width: "50%",
+                  cursor: "pointer",
+                }}
+                onClick={handlePrev}
+              />
+              <Box
+                sx={{
+                  position: "absolute",
+                  top: 0,
+                  right: 0,
+                  bottom: 0,
+                  width: "50%",
+                  cursor: "pointer",
+                }}
+                onClick={handleNext}
+              />
+            </>
+          )}
         </Box>
       );
     }
