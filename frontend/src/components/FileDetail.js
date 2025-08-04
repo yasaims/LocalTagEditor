@@ -129,7 +129,7 @@ function FileDetail() {
         </Box>
       );
     }
-    if (file.thumbnail_type === "image") {
+    if (file.type === "image") {
       return (
         <img
           src={`${api}/files/${file.id}/content`}
@@ -138,7 +138,7 @@ function FileDetail() {
         />
       );
     }
-    if (file.thumbnail_type === "video") {
+    if (file.type === "video") {
       return (
         <video
           controls
