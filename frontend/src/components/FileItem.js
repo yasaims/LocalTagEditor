@@ -38,24 +38,16 @@ function FileItem({ file, refresh }) {
   };
 
   const preview = () => {
-    if (file.thumbnail_type === "image") {
-      return (
-        <img
-          src={`${api}/files/${file.id}/content`}
-          alt={file.path}
-          style={{ maxWidth: "200px" }}
-        />
-      );
+    if (file.type === "other") {
+      return <a href={file.path}>{file.path}</a>;
     }
-    if (file.thumbnail_type === "video") {
-      return (
-        <video controls width="200" src={`${api}/files/${file.id}/content`} />
-      );
-    }
-    if (file.type === "folder") {
-      return <Typography>Folder: {file.path}</Typography>;
-    }
-    return <a href={file.path}>{file.path}</a>;
+    return (
+      <img
+        src={`${api}/files/${file.id}/thumbnail`}
+        alt={file.path}
+        style={{ maxWidth: "200px" }}
+      />
+    );
   };
 
   const name = file.path.split("\\").pop();
