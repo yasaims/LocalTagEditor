@@ -8,6 +8,10 @@ This repository contains a simple tag-based file manager that runs entirely on a
 - **Supported image formats:** PNG, JPG, JPEG, GIF, WEBP
 - **Supported video formats:** MP4, WEBM, OGG
 
+## Projects
+
+- **Project2 — GIF Frame Viewer:** Static web app located in `project2/` that lets you upload a GIF file and view every frame as a still image.
+
 ## Setup
 
 ### Backend

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GIF フレームビューア</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app">
+      <h1>GIF フレームビューア</h1>
+      <p class="lead">
+        GIF 画像を選択すると、全てのフレームを静止画として表示します。
+      </p>
+      <label class="file-input">
+        <span>GIF ファイルを選択</span>
+        <input id="gifInput" type="file" accept="image/gif" />
+      </label>
+      <p id="status" class="status">ファイルを選択してください。</p>
+      <section id="frames" class="frames" aria-live="polite"></section>
+    </main>
+
+    <script src="https://unpkg.com/gifuct-js/dist/gifuct.min.js"></script>
+    <script src="script.js"></script>
+  </body>
+</html>
