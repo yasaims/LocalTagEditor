@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GIFフレームビューア</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="app">
+    <header>
+      <h1>GIFフレームビューア</h1>
+      <p>GIFファイルを選択すると、すべてのフレームが個別に表示されます。</p>
+    </header>
+
+    <section class="controls">
+      <label class="file-input">
+        <span>GIFファイルを選択</span>
+        <input type="file" id="gifInput" accept="image/gif">
+      </label>
+      <p id="status" class="status">ファイルを選択してください。</p>
+    </section>
+
+    <section id="frames" class="frames" aria-live="polite"></section>
+  </main>
+
+  <script type="module" src="main.js"></script>
+</body>
+</html>
