@@ -1,9 +1,10 @@
-from flask_sqlalchemy import SQLAlchemy
-from flask_migrate import Migrate, upgrade
-from sqlalchemy import event
-from sqlalchemy.engine import Engine
 import os
 import sqlite3
+
+from flask_migrate import Migrate, upgrade
+from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import event
+from sqlalchemy.engine import Engine
 
 db = SQLAlchemy()
 migrate = Migrate()

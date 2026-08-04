@@ -1,5 +1,7 @@
 # LocalTagEditor
 
+[![CI](https://github.com/yasaims/LocalTagEditor/actions/workflows/ci.yml/badge.svg)](https://github.com/yasaims/LocalTagEditor/actions/workflows/ci.yml)
+
 This repository contains a simple tag-based file manager that runs entirely on a local machine.
 
 - **Backend:** Python + Flask
@@ -25,7 +27,7 @@ python app.py
 ### Frontend
 ```bash
 cd frontend
-npm install
+npm ci
 ```
 To start the development server so that other devices can access it:
 ```bash
@@ -37,3 +39,25 @@ npm start
 Create the `.env` file the same way on Windows.
 
 Now open `http://<PC_IP>:3000` on your smartphone browser to use the app.
+
+## Checks
+
+Every push and pull request runs [the CI workflow](.github/workflows/ci.yml).
+The same checks can be run locally.
+
+### Backend
+```bash
+cd backend
+pip install -r requirements-dev.txt
+ruff check .            # lint
+ruff format --check .   # formatting
+pytest                  # API tests
+flask db check          # models and migrations agree
+```
+
+### Frontend
+```bash
+cd frontend
+CI=true npm run build   # CI=true turns ESLint warnings into build errors
+```
+

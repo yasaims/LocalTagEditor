@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import React, { useCallback, useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
@@ -9,6 +9,11 @@ import Chip from "@mui/material/Chip";
 import TextField from "@mui/material/TextField";
 import useMediaQuery from "@mui/material/useMediaQuery";
 
+// Use REACT_APP_API_URL when provided for network access. Read once at module
+// scope: it is baked in at build time, so it is not a value that can change
+// while rendering and does not belong in any hook dependency list.
+const api = process.env.REACT_APP_API_URL || "http://localhost:5000";
+
 function FileDetail() {
   const { id } = useParams();
   const [file, setFile] = useState(null);
@@ -17,14 +22,14 @@ function FileDetail() {
   const [newTag, setNewTag] = useState("");
   const [allTags, setAllTags] = useState([]);
   const isSmall = useMediaQuery('(max-width:600px)');
-  // Use REACT_APP_API_URL when provided for network access
-  const api = process.env.REACT_APP_API_URL || "http://localhost:5000";
 
-  const fetchTags = () => {
+  // Memoised so that the effect below can depend on it without re-running on
+  // every render.
+  const fetchTags = useCallback(() => {
     fetch(`${api}/tags`)
       .then((res) => res.json())
       .then((data) => setAllTags(data.map((t) => t.name)));
-  };
+  }, []);
 
   useEffect(() => {
     const fetchFile = async () => {
@@ -40,7 +45,7 @@ function FileDetail() {
       fetchTags();
     };
     fetchFile();
-  }, [id]);
+  }, [id, fetchTags]);
 
   const refresh = () => {
     fetch(`${api}/files/${id}`)
