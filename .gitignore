@@ -2,6 +2,6 @@ __pycache__/
 node_modules/
 .env
 venv
-backend/instance/database.db
 backend/database.db
 frontend/package-lock.json
+CLAUDE.md
