@@ -97,6 +97,18 @@ def run_migrations_online():
     connectable = get_engine()
 
     with connectable.connect() as connection:
+        # Batch migrations rebuild a table by copying it, dropping the original
+        # and renaming. With SQLite FK enforcement on (see database.py) that
+        # DROP would cascade-delete the referencing rows, so enforcement is
+        # suspended here. Must run before begin_transaction: SQLite ignores this
+        # pragma inside a transaction.
+        if connection.dialect.name == "sqlite":
+            connection.exec_driver_sql("PRAGMA foreign_keys=OFF")
+            # Executing the pragma autobegins a transaction; leaving it open
+            # would make begin_transaction() below nest inside it and never
+            # commit, silently discarding the migration.
+            connection.commit()
+
         context.configure(
             connection=connection,
             target_metadata=get_metadata(),

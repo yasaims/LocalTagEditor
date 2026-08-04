@@ -1,11 +1,24 @@
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate, upgrade
+from sqlalchemy import event
+from sqlalchemy.engine import Engine
 import os
+import sqlite3
 
 db = SQLAlchemy()
 migrate = Migrate()
 
 MIGRATIONS_DIR = os.path.join(os.path.dirname(__file__), "migrations")
+
+
+@event.listens_for(Engine, "connect")
+def _enable_sqlite_foreign_keys(dbapi_connection, connection_record):
+    """SQLite ignores FOREIGN KEY clauses unless this pragma is set per
+    connection, which would leave the constraints in the schema unenforced."""
+    if isinstance(dbapi_connection, sqlite3.Connection):
+        cursor = dbapi_connection.cursor()
+        cursor.execute("PRAGMA foreign_keys=ON")
+        cursor.close()
 
 
 def init_db(app):

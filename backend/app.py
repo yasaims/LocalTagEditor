@@ -90,11 +90,16 @@ def register_file():
 
 @app.route("/files", methods=["GET"])
 def list_files():
-    tag_names = request.args.getlist("tag")
+    # Deduplicate case-insensitively to match the NOCASE collation on Tag.name:
+    # a repeated tag would otherwise inflate the expected count below and make
+    # the filter match nothing.
+    tag_names = list({name.casefold(): name for name in request.args.getlist("tag")}.values())
     query = File.query
     if tag_names:
         query = query.join(FileTag).join(Tag).filter(Tag.name.in_(tag_names))
-        query = query.group_by(File.id).having(db.func.count(Tag.id) == len(tag_names))
+        query = query.group_by(File.id).having(
+            db.func.count(db.distinct(Tag.id)) == len(tag_names)
+        )
     files = query.all()
     result = []
     for f in files:
@@ -130,6 +135,9 @@ def add_tag(file_id):
     tag_name = data.get("tag")
     if not tag_name:
         return jsonify({"error": "tag required"}), 400
+    tag_name = tag_name.strip()
+    if not tag_name:
+        return jsonify({"error": "tag required"}), 400
     file = File.query.get_or_404(file_id)
     tag = Tag.query.filter_by(name=tag_name).first()
     if not tag:
@@ -162,7 +170,8 @@ def remove_tag(file_id, tag_id):
 def delete_file(file_id):
     file = File.query.get_or_404(file_id)
     tag_ids = [t.id for t in file.tags]
-    FileTag.query.filter_by(file_id=file_id).delete()
+    # The association rows go with the file (relationship cascade, backed by
+    # ON DELETE CASCADE), so only the now-orphaned tags need sweeping.
     db.session.delete(file)
     db.session.flush()
     for tag_id in tag_ids:
