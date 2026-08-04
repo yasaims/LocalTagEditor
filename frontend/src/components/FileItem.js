@@ -1,39 +1,20 @@
-import React, { useState } from "react";
+import React from "react";
 import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
 import Chip from "@mui/material/Chip";
-import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import Stack from "@mui/material/Stack";
 import Box from "@mui/material/Box";
 import { Link } from "react-router-dom";
 
-function FileItem({ file, refresh }) {
-  const [newTag, setNewTag] = useState("");
-  // Base URL of backend API (default localhost)
-  const api = process.env.REACT_APP_API_URL || "http://localhost:5000";
+// Base URL of backend API (default localhost). Read once at module scope: it is
+// baked in at build time, so it is not a value that can change while rendering.
+const api = process.env.REACT_APP_API_URL || "http://localhost:5000";
 
+function FileItem({ file, refresh }) {
   const deleteItem = async () => {
     if (!window.confirm("Delete this entry?")) return;
     await fetch(`${api}/files/${file.id}`, { method: "DELETE" });
-    refresh();
-  };
-
-  const addTag = async () => {
-    if (!newTag) return;
-    await fetch(`${api}/files/${file.id}/tags`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ tag: newTag }),
-    });
-    setNewTag("");
-    refresh();
-  };
-
-  const removeTag = async (tagId) => {
-    await fetch(`${api}/files/${file.id}/tags/${tagId}`, {
-      method: "DELETE",
-    });
     refresh();
   };
 

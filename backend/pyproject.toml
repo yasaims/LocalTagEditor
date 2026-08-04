@@ -1,0 +1,19 @@
+[project]
+name = "localtageditor-backend"
+version = "0.1.0"
+# Also what Ruff infers its target Python version from.
+requires-python = ">=3.12"
+
+[tool.ruff]
+line-length = 100
+# Alembic writes these; they are not ours to keep lint-clean.
+extend-exclude = ["migrations", "venv"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+# tests/ is not a package, so pytest would otherwise put tests/ on sys.path
+# instead of backend/ and `import app` would fail.
+pythonpath = ["."]

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
@@ -10,30 +10,36 @@ import FileRegister from './components/FileRegister';
 import FileDetail from './components/FileDetail';
 import { Routes, Route, Link } from 'react-router-dom';
 
+// Allow overriding the API URL so the app can be accessed from other devices.
+// Read once at module scope: it is baked in at build time, so it is not a value
+// that can change while rendering and does not belong in a dependency list.
+const api = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+
 function App() {
   const [files, setFiles] = useState([]);
   const [tags, setTags] = useState([]);
   const [selectedTags, setSelectedTags] = useState([]);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const isSmall = useMediaQuery('(max-width:600px)');
-  // Allow overriding the API URL so the app can be accessed from other devices
-  const api = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
-  const fetchFiles = async () => {
+  // Both are memoised so the effects below can depend on them directly.
+  // fetchFiles' identity changes only when the filter does, which is exactly
+  // when the list needs refetching.
+  const fetchFiles = useCallback(async () => {
     const params = selectedTags.map(t => `tag=${encodeURIComponent(t)}`).join('&');
     const res = await fetch(`${api}/files?${params}`);
     const data = await res.json();
     setFiles(data);
-  };
+  }, [selectedTags]);
 
-  const fetchTags = async () => {
+  const fetchTags = useCallback(async () => {
     const res = await fetch(`${api}/tags`);
     const data = await res.json();
     setTags(data.map(t => t.name));
-  };
+  }, []);
 
-  useEffect(() => { fetchTags(); }, []);
-  useEffect(() => { fetchFiles(); }, [selectedTags]);
+  useEffect(() => { fetchTags(); }, [fetchTags]);
+  useEffect(() => { fetchFiles(); }, [fetchFiles]);
 
   const sidebar = (
     <Box sx={{ width: 240, p: 2, bgcolor: '#f5f5f5' }}>

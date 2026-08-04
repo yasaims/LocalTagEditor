@@ -1,4 +1,5 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
+
 from database import db
 
 
@@ -11,7 +12,7 @@ class File(db.Model):
     # Normalised form of `path` (see normalize_path_key in app.py). Uniqueness
     # lives here so that "C:\a", "C:\a\" and "c:\A" cannot register twice.
     path_key = db.Column(db.String, unique=True, nullable=False)
-    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
     tags = db.relationship("Tag", secondary="file_tags", backref="files")
 
 
@@ -27,12 +28,8 @@ class FileTag(db.Model):
     __tablename__ = "file_tags"
     # ON DELETE CASCADE keeps the association clean without the routes having
     # to sweep it by hand. Requires PRAGMA foreign_keys=ON (see database.py).
-    file_id = db.Column(
-        db.Integer, db.ForeignKey("files.id", ondelete="CASCADE"), primary_key=True
-    )
-    tag_id = db.Column(
-        db.Integer, db.ForeignKey("tags.id", ondelete="CASCADE"), primary_key=True
-    )
+    file_id = db.Column(db.Integer, db.ForeignKey("files.id", ondelete="CASCADE"), primary_key=True)
+    tag_id = db.Column(db.Integer, db.ForeignKey("tags.id", ondelete="CASCADE"), primary_key=True)
 
     # The composite primary key indexes (file_id, tag_id), which cannot serve
     # lookups keyed on tag_id alone -- i.e. tag filtering and delete_tag_if_unused.

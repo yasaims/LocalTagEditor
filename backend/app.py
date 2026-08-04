@@ -1,17 +1,17 @@
-from flask import Flask, request, jsonify, send_file
-from flask_cors import CORS
 import os
 import re
+
 from dotenv import load_dotenv
+from flask import Blueprint, Flask, jsonify, request, send_file
+from flask_cors import CORS
 
-from database import db, init_db, init_database_schema
-from models import File, Tag, FileTag
+from database import db, init_database_schema, init_db
+from models import File, FileTag, Tag
 
-load_dotenv()
-
-app = Flask(__name__)
-init_db(app)
-CORS(app)
+# Routes hang off a blueprint rather than a module-level app so that create_app()
+# can build a fresh application per configuration -- notably a throwaway SQLite
+# file for the tests.
+api = Blueprint("api", __name__)
 
 IMAGE_EXTS = {".png", ".jpg", ".jpeg", ".gif", ".webp"}
 VIDEO_EXTS = {".mp4", ".webm", ".ogg"}
@@ -29,9 +29,7 @@ def normalize_path_key(path):
 
 def natural_sort_key(s):
     """Return a key for natural sorting (handles numbers in strings)."""
-    return [
-        int(text) if text.isdigit() else text.lower() for text in re.split(r"(\d+)", s)
-    ]
+    return [int(text) if text.isdigit() else text.lower() for text in re.split(r"(\d+)", s)]
 
 
 def classify_path(path):
@@ -70,7 +68,7 @@ def thumbnail_type_for(path):
     return None
 
 
-@app.route("/files", methods=["POST"])
+@api.route("/files", methods=["POST"])
 def register_file():
     data = request.get_json()
     path = data.get("path")
@@ -88,7 +86,7 @@ def register_file():
     return jsonify({"id": file.id, "path": file.path, "type": classify_path(file.path)})
 
 
-@app.route("/files", methods=["GET"])
+@api.route("/files", methods=["GET"])
 def list_files():
     # Deduplicate case-insensitively to match the NOCASE collation on Tag.name:
     # a repeated tag would otherwise inflate the expected count below and make
@@ -97,9 +95,7 @@ def list_files():
     query = File.query
     if tag_names:
         query = query.join(FileTag).join(Tag).filter(Tag.name.in_(tag_names))
-        query = query.group_by(File.id).having(
-            db.func.count(db.distinct(Tag.id)) == len(tag_names)
-        )
+        query = query.group_by(File.id).having(db.func.count(db.distinct(Tag.id)) == len(tag_names))
     files = query.all()
     result = []
     for f in files:
@@ -115,7 +111,7 @@ def list_files():
     return jsonify(result)
 
 
-@app.route("/files/<int:file_id>", methods=["GET"])
+@api.route("/files/<int:file_id>", methods=["GET"])
 def get_file(file_id):
     f = File.query.get_or_404(file_id)
     return jsonify(
@@ -129,7 +125,7 @@ def get_file(file_id):
     )
 
 
-@app.route("/files/<int:file_id>/tags", methods=["POST"])
+@api.route("/files/<int:file_id>/tags", methods=["POST"])
 def add_tag(file_id):
     data = request.get_json()
     tag_name = data.get("tag")
@@ -154,7 +150,7 @@ def delete_tag_if_unused(tag_id):
         Tag.query.filter_by(id=tag_id).delete()
 
 
-@app.route("/files/<int:file_id>/tags/<int:tag_id>", methods=["DELETE"])
+@api.route("/files/<int:file_id>/tags/<int:tag_id>", methods=["DELETE"])
 def remove_tag(file_id, tag_id):
     file = File.query.get_or_404(file_id)
     tag = Tag.query.get_or_404(tag_id)
@@ -166,7 +162,7 @@ def remove_tag(file_id, tag_id):
     return jsonify({"message": "tag removed"})
 
 
-@app.route("/files/<int:file_id>", methods=["DELETE"])
+@api.route("/files/<int:file_id>", methods=["DELETE"])
 def delete_file(file_id):
     file = File.query.get_or_404(file_id)
     tag_ids = [t.id for t in file.tags]
@@ -180,7 +176,7 @@ def delete_file(file_id):
     return jsonify({"message": "file deleted"})
 
 
-@app.route("/files/<int:file_id>/content", methods=["GET"])
+@api.route("/files/<int:file_id>/content", methods=["GET"])
 def file_content(file_id):
     file = File.query.get_or_404(file_id)
     if os.path.isdir(file.path):
@@ -193,7 +189,7 @@ def file_content(file_id):
     return jsonify({"error": "file not found"}), 404
 
 
-@app.route("/files/<int:file_id>/content/<path:filename>", methods=["GET"])
+@api.route("/files/<int:file_id>/content/<path:filename>", methods=["GET"])
 def folder_content_item(file_id, filename):
     file = File.query.get_or_404(file_id)
     if not os.path.isdir(file.path):
@@ -208,7 +204,7 @@ def folder_content_item(file_id, filename):
     return jsonify({"error": "file not found"}), 404
 
 
-@app.route("/files/<int:file_id>/items", methods=["GET"])
+@api.route("/files/<int:file_id>/items", methods=["GET"])
 def list_folder_items(file_id):
     file = File.query.get_or_404(file_id)
     if not os.path.isdir(file.path):
@@ -222,15 +218,38 @@ def list_folder_items(file_id):
     return jsonify(items)
 
 
-@app.route("/tags", methods=["GET"])
+@api.route("/tags", methods=["GET"])
 def list_tags():
     tags = Tag.query.order_by(Tag.name).all()
     return jsonify([{"id": t.id, "name": t.name} for t in tags])
 
 
+def create_app(config=None):
+    """Build an application instance.
+
+    `config` overrides are applied before init_db so that they win over the
+    defaults it installs with setdefault -- that is how the tests point the app
+    at a temporary database instead of backend/database.db.
+
+    The `flask` CLI discovers this factory by name, so FLASK_APP=app.py keeps
+    working for `flask db upgrade` and friends.
+    """
+    load_dotenv()
+
+    app = Flask(__name__)
+    if config:
+        app.config.update(config)
+    init_db(app)
+    CORS(app)
+    app.register_blueprint(api)
+    return app
+
+
 if __name__ == "__main__":
-    # Apply any pending migrations before serving. Kept out of import time so
-    # that the `flask db` CLI can load this module without touching the schema.
+    app = create_app()
+
+    # Apply any pending migrations before serving. Kept out of create_app() so
+    # that the `flask db` CLI can build the app without touching the schema.
     init_database_schema(app)
 
     # Allow configuring host, port and debug from environment variables
