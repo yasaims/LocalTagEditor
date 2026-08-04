@@ -17,6 +17,16 @@ IMAGE_EXTS = {".png", ".jpg", ".jpeg", ".gif", ".webp"}
 VIDEO_EXTS = {".mp4", ".webm", ".ogg"}
 
 
+def normalize_path_key(path):
+    """Return the uniqueness key for a registered path.
+
+    Collapses the spellings that name the same location -- trailing separators,
+    "..", mixed separators, and (on Windows) letter case -- so that they resolve
+    to one File row instead of registering separately.
+    """
+    return os.path.normcase(os.path.normpath(os.path.abspath(path)))
+
+
 def natural_sort_key(s):
     """Return a key for natural sorting (handles numbers in strings)."""
     return [
@@ -60,18 +70,19 @@ def thumbnail_type_for(path):
     return None
 
 
-init_database_schema(app)
-
-
 @app.route("/files", methods=["POST"])
 def register_file():
     data = request.get_json()
     path = data.get("path")
     if not path:
         return jsonify({"error": "path required"}), 400
-    file = File.query.filter_by(path=path).first()
+    path = path.strip()
+    if not path:
+        return jsonify({"error": "path required"}), 400
+    path_key = normalize_path_key(path)
+    file = File.query.filter_by(path_key=path_key).first()
     if not file:
-        file = File(path=path)
+        file = File(path=path, path_key=path_key)
         db.session.add(file)
         db.session.commit()
     return jsonify({"id": file.id, "path": file.path, "type": classify_path(file.path)})
@@ -209,6 +220,10 @@ def list_tags():
 
 
 if __name__ == "__main__":
+    # Apply any pending migrations before serving. Kept out of import time so
+    # that the `flask db` CLI can load this module without touching the schema.
+    init_database_schema(app)
+
     # Allow configuring host, port and debug from environment variables
     host = os.getenv("FLASK_HOST", "0.0.0.0")
     port = int(os.getenv("FLASK_PORT", "5000"))
