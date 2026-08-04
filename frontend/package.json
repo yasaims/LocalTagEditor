@@ -17,7 +17,8 @@
     "test": "react-scripts test"
   },
   "engines": {
-    "node": ">=20"
+    "node": ">=20",
+    "npm": "11.11.0"
   },
   "eslintConfig": {
     "extends": [
