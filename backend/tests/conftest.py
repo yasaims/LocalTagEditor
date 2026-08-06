@@ -5,28 +5,42 @@ from database import db, init_database_schema
 
 
 @pytest.fixture
-def app(tmp_path):
-    """An application backed by a throwaway SQLite file.
+def make_app(tmp_path):
+    """Factory for an application backed by a throwaway SQLite file.
 
     The schema is built by running the migrations rather than db.create_all(),
     so every test also exercises that the migration chain applies to an empty
-    database -- the same thing `flask db upgrade` does in CI.
+    database -- the same thing `flask db upgrade` does in CI. Extra keyword
+    arguments are merged into the app config (e.g. WRITE_MODE="off"), which
+    wins over the WRITE_MODE env var the same way create_app documents.
     """
-    db_path = (tmp_path / "test.db").as_posix()
-    application = create_app(
-        {
-            "SQLALCHEMY_DATABASE_URI": f"sqlite:///{db_path}",
-            "TESTING": True,
-        }
-    )
-    init_database_schema(application)
+    created = []
 
-    yield application
+    def _make_app(**config_overrides):
+        db_path = (tmp_path / f"test-{len(created)}.db").as_posix()
+        application = create_app(
+            {
+                "SQLALCHEMY_DATABASE_URI": f"sqlite:///{db_path}",
+                "TESTING": True,
+                **config_overrides,
+            }
+        )
+        init_database_schema(application)
+        created.append(application)
+        return application
+
+    yield _make_app
 
     # Windows will not let pytest remove tmp_path while the file is still open.
-    with application.app_context():
-        db.session.remove()
-        db.engine.dispose()
+    for application in created:
+        with application.app_context():
+            db.session.remove()
+            db.engine.dispose()
+
+
+@pytest.fixture
+def app(make_app):
+    return make_app()
 
 
 @pytest.fixture

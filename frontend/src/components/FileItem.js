@@ -23,7 +23,7 @@ const TYPE_ICONS = {
   other: InsertDriveFileIcon,
 };
 
-function FileItem({ file, refresh }) {
+function FileItem({ file, refresh, canManage }) {
   const deleteItem = async () => {
     if (!window.confirm("Delete this entry?")) return;
     await fetch(`${api}/files/${file.id}`, { method: "DELETE" });
@@ -74,15 +74,17 @@ function FileItem({ file, refresh }) {
             {name}
           </Typography>
         </Box>
-        <Button
-          variant="contained"
-          color="error"
-          size="small"
-          sx={{ minWidth: "24px", height: "24px", p: 0 }}
-          onClick={deleteItem}
-        >
-          X
-        </Button>
+        {canManage && (
+          <Button
+            variant="contained"
+            color="error"
+            size="small"
+            sx={{ minWidth: "24px", height: "24px", p: 0 }}
+            onClick={deleteItem}
+          >
+            X
+          </Button>
+        )}
       </Box>
       <Box
         component={Link}

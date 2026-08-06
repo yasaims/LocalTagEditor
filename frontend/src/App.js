@@ -22,6 +22,7 @@ function App() {
   const [selectedTags, setSelectedTags] = useState([]);
   const [selectedTypes, setSelectedTypes] = useState([]);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [canManage, setCanManage] = useState(false);
   const isSmall = useMediaQuery("(max-width:600px)");
 
   // Both are memoised so the effects below can depend on them directly.
@@ -43,12 +44,29 @@ function App() {
     setTags(data.map((t) => t.name));
   }, []);
 
+  // Whether registering/deleting files is allowed for this connection -- the
+  // backend decides based on connection origin (see WRITE_MODE in
+  // backend/app.py), since the same frontend build is served both to the PC
+  // itself and to other devices on the LAN.
+  const fetchCapabilities = useCallback(async () => {
+    try {
+      const res = await fetch(`${api}/capabilities`);
+      const data = await res.json();
+      setCanManage(Boolean(data.can_manage));
+    } catch {
+      setCanManage(false);
+    }
+  }, []);
+
   useEffect(() => {
     fetchTags();
   }, [fetchTags]);
   useEffect(() => {
     fetchFiles();
   }, [fetchFiles]);
+  useEffect(() => {
+    fetchCapabilities();
+  }, [fetchCapabilities]);
 
   const sidebar = (
     <Box sx={{ width: 240, p: 2, bgcolor: "#f5f5f5" }}>
@@ -81,10 +99,12 @@ function App() {
         path="/"
         element={
           <>
-            <Box sx={{ mb: 2 }}>
-              <FileRegister onRegistered={fetchFiles} />
-            </Box>
-            <FileList files={files} refresh={fetchFiles} />
+            {canManage && (
+              <Box sx={{ mb: 2 }}>
+                <FileRegister onRegistered={fetchFiles} />
+              </Box>
+            )}
+            <FileList files={files} refresh={fetchFiles} canManage={canManage} />
           </>
         }
       />

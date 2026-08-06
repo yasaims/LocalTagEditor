@@ -1,8 +1,11 @@
+import functools
+import ipaddress
 import os
 import re
+import socket
 
 from dotenv import load_dotenv
-from flask import Blueprint, Flask, jsonify, request, send_file
+from flask import Blueprint, Flask, current_app, jsonify, request, send_file
 from flask_cors import CORS
 
 from database import db, init_database_schema, init_db
@@ -16,6 +19,69 @@ api = Blueprint("api", __name__)
 IMAGE_EXTS = {".png", ".jpg", ".jpeg", ".gif", ".webp"}
 VIDEO_EXTS = {".mp4", ".webm", ".ogg"}
 FILE_TYPES = {"folder", "image", "video", "other"}
+
+
+@functools.lru_cache(maxsize=1)
+def _local_addresses():
+    """IPv4 addresses that belong to this machine, memoised for the process.
+
+    Used to recognise a request as "from this PC" even when it did not come in
+    over loopback. The app is routinely run with FLASK_HOST=0.0.0.0 and the
+    frontend pointed at REACT_APP_API_URL=http://<PC_IP>:5000 (see
+    frontend/.env.example) so it can be reached from a phone on the LAN -- that
+    means a browser running on the very same PC also shows up with the PC's LAN
+    IP as remote_addr, not 127.0.0.1. Checking loopback alone would lock the
+    owner's own PC out of registering files whenever it uses the LAN URL.
+    """
+    try:
+        return set(socket.gethostbyname_ex(socket.gethostname())[2])
+    except OSError:
+        return set()
+
+
+def is_local_request():
+    """Whether the current request originates from this machine.
+
+    Deliberately ignores X-Forwarded-For and similar headers: this app has no
+    reverse proxy in front of it, and any such header is fully attacker-
+    controlled, so trusting it would make the check trivially bypassable.
+    remote_addr itself can't be spoofed for a TCP connection since the response
+    has to route back to the real sender.
+    """
+    addr = request.remote_addr
+    if not addr:
+        return False
+    try:
+        ip = ipaddress.ip_address(addr)
+    except ValueError:
+        return False
+    return ip.is_loopback or addr in _local_addresses()
+
+
+def write_allowed():
+    """Whether file-registry-mutating endpoints are permitted for this request.
+
+    Governed by WRITE_MODE (config, defaulting from the WRITE_MODE env var):
+    "local" (default) allows only requests from this machine, "off" disables
+    these endpoints entirely, "all" allows any origin (restores pre-existing
+    behaviour).
+    """
+    mode = current_app.config.get("WRITE_MODE", "local")
+    if mode == "all":
+        return True
+    if mode == "off":
+        return False
+    return is_local_request()
+
+
+def local_only(view):
+    @functools.wraps(view)
+    def wrapped(*args, **kwargs):
+        if not write_allowed():
+            return jsonify({"error": "disabled for remote connections"}), 403
+        return view(*args, **kwargs)
+
+    return wrapped
 
 
 def normalize_path_key(path):
@@ -70,6 +136,7 @@ def thumbnail_type_for(path):
 
 
 @api.route("/files/browse", methods=["GET"])
+@local_only
 def browse_file():
     """Open a native file picker on the machine running the backend.
 
@@ -96,6 +163,7 @@ def browse_file():
 
 
 @api.route("/files", methods=["POST"])
+@local_only
 def register_file():
     data = request.get_json()
     path = data.get("path")
@@ -199,6 +267,7 @@ def remove_tag(file_id, tag_id):
 
 
 @api.route("/files/<int:file_id>", methods=["DELETE"])
+@local_only
 def delete_file(file_id):
     file = File.query.get_or_404(file_id)
     tag_ids = [t.id for t in file.tags]
@@ -254,6 +323,11 @@ def list_folder_items(file_id):
     return jsonify(items)
 
 
+@api.route("/capabilities", methods=["GET"])
+def capabilities():
+    return jsonify({"can_manage": write_allowed()})
+
+
 @api.route("/tags", methods=["GET"])
 def list_tags():
     tags = Tag.query.order_by(Tag.name).all()
@@ -275,6 +349,7 @@ def create_app(config=None):
     app = Flask(__name__)
     if config:
         app.config.update(config)
+    app.config.setdefault("WRITE_MODE", os.getenv("WRITE_MODE", "local"))
     init_db(app)
     CORS(app)
     app.register_blueprint(api)

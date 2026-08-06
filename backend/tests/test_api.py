@@ -278,3 +278,84 @@ def test_items_of_a_non_folder_is_empty(client, register, tmp_path):
     file_id = register(image)
 
     assert client.get(f"/files/{file_id}/items").get_json() == []
+
+
+# --- write-gating by connection origin ---------------------------------------
+
+# Reserved for documentation (RFC 5737 TEST-NET-3): guaranteed not to be an
+# address this machine actually owns, so it reliably exercises the "remote"
+# path regardless of what network the test runner is on.
+REMOTE_ADDR = "203.0.113.5"
+
+
+def test_register_from_remote_address_is_rejected(make_app, tmp_path):
+    client = make_app().test_client()
+    image = tmp_path / "picture.jpg"
+    image.write_bytes(b"jpeg")
+
+    response = client.post(
+        "/files",
+        json={"path": str(image)},
+        environ_base={"REMOTE_ADDR": REMOTE_ADDR},
+    )
+
+    assert response.status_code == 403
+
+
+def test_browse_from_remote_address_is_rejected(make_app):
+    client = make_app().test_client()
+
+    response = client.get("/files/browse", environ_base={"REMOTE_ADDR": REMOTE_ADDR})
+
+    assert response.status_code == 403
+
+
+def test_delete_from_remote_address_is_rejected(make_app, tmp_path):
+    client = make_app().test_client()
+    image = tmp_path / "picture.jpg"
+    image.write_bytes(b"jpeg")
+    file_id = client.post("/files", json={"path": str(image)}).get_json()["id"]
+
+    response = client.delete(f"/files/{file_id}", environ_base={"REMOTE_ADDR": REMOTE_ADDR})
+
+    assert response.status_code == 403
+
+
+def test_write_mode_off_rejects_even_local_requests(make_app, tmp_path):
+    client = make_app(WRITE_MODE="off").test_client()
+    image = tmp_path / "picture.jpg"
+    image.write_bytes(b"jpeg")
+
+    response = client.post("/files", json={"path": str(image)})
+
+    assert response.status_code == 403
+
+
+def test_write_mode_all_allows_remote_requests(make_app, tmp_path):
+    client = make_app(WRITE_MODE="all").test_client()
+    image = tmp_path / "picture.jpg"
+    image.write_bytes(b"jpeg")
+
+    response = client.post(
+        "/files",
+        json={"path": str(image)},
+        environ_base={"REMOTE_ADDR": REMOTE_ADDR},
+    )
+
+    assert response.status_code == 200
+
+
+def test_capabilities_reflects_write_mode_and_origin(make_app):
+    local_client = make_app().test_client()
+    assert local_client.get("/capabilities").get_json() == {"can_manage": True}
+
+    off_client = make_app(WRITE_MODE="off").test_client()
+    assert off_client.get("/capabilities").get_json() == {"can_manage": False}
+
+    all_client = make_app(WRITE_MODE="all").test_client()
+    response = all_client.get("/capabilities", environ_base={"REMOTE_ADDR": REMOTE_ADDR})
+    assert response.get_json() == {"can_manage": True}
+
+    local_mode_client = make_app().test_client()
+    response = local_mode_client.get("/capabilities", environ_base={"REMOTE_ADDR": REMOTE_ADDR})
+    assert response.get_json() == {"can_manage": False}
