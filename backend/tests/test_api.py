@@ -155,6 +155,68 @@ def test_unfiltered_listing_returns_every_file(client, register, tmp_path):
     assert len(client.get("/files").get_json()) == 2
 
 
+def test_type_filter_returns_only_that_type(client, register, tmp_path):
+    image = register(tmp_path / "a.jpg")
+    register(tmp_path / "a.mp4")
+
+    matched = client.get("/files?type=image").get_json()
+
+    assert [f["id"] for f in matched] == [image]
+
+
+def test_multiple_types_are_or_ed(client, register, tmp_path, media_folder):
+    image = register(tmp_path / "a.jpg")
+    video = register(tmp_path / "a.mp4")
+    register(media_folder)  # a folder -- should not match image or video
+
+    matched = client.get("/files?type=image&type=video").get_json()
+
+    assert {f["id"] for f in matched} == {image, video}
+
+
+def test_type_and_tag_filters_are_and_ed(client, register, tmp_path):
+    tagged_image = register(tmp_path / "tagged.jpg")
+    untagged_image = register(tmp_path / "untagged.jpg")
+    tagged_video = register(tmp_path / "tagged.mp4")
+    for file_id in (tagged_image, tagged_video):
+        client.post(f"/files/{file_id}/tags", json={"tag": "alpha"})
+
+    matched = client.get("/files?tag=alpha&type=image").get_json()
+
+    assert [f["id"] for f in matched] == [tagged_image]
+    assert untagged_image not in [f["id"] for f in matched]
+
+
+def test_type_filter_is_case_insensitive(client, register, tmp_path):
+    image = register(tmp_path / "a.jpg")
+
+    matched = client.get("/files?type=IMAGE").get_json()
+
+    assert [f["id"] for f in matched] == [image]
+
+
+def test_unknown_type_matches_nothing(client, register, tmp_path):
+    """An unrecognized type must not be treated as "no filter" and return
+    everything -- it should filter down to an empty result instead."""
+    register(tmp_path / "a.jpg")
+
+    assert client.get("/files?type=bogus").get_json() == []
+
+
+def test_selecting_every_type_matches_the_unfiltered_listing(
+    client, register, tmp_path, media_folder
+):
+    register(tmp_path / "a.jpg")
+    register(tmp_path / "a.mp4")
+    register(media_folder)
+    register(tmp_path / "notes.txt")
+
+    all_types = client.get("/files?type=folder&type=image&type=video&type=other").get_json()
+    unfiltered = client.get("/files").get_json()
+
+    assert {f["id"] for f in all_types} == {f["id"] for f in unfiltered}
+
+
 # --- folder contents ---------------------------------------------------------
 
 

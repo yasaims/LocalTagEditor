@@ -15,6 +15,7 @@ api = Blueprint("api", __name__)
 
 IMAGE_EXTS = {".png", ".jpg", ".jpeg", ".gif", ".webp"}
 VIDEO_EXTS = {".mp4", ".webm", ".ogg"}
+FILE_TYPES = {"folder", "image", "video", "other"}
 
 
 def normalize_path_key(path):
@@ -92,6 +93,10 @@ def list_files():
     # a repeated tag would otherwise inflate the expected count below and make
     # the filter match nothing.
     tag_names = list({name.casefold(): name for name in request.args.getlist("tag")}.values())
+    # Types are OR'd with each other and AND'd with the tag filter. classify_path
+    # reads the filesystem rather than a column, so this cannot be pushed into SQL.
+    requested_types = request.args.getlist("type")
+    types = {t.strip().lower() for t in requested_types} & FILE_TYPES
     query = File.query
     if tag_names:
         query = query.join(FileTag).join(Tag).filter(Tag.name.in_(tag_names))
@@ -99,11 +104,16 @@ def list_files():
     files = query.all()
     result = []
     for f in files:
+        file_type = classify_path(f.path)
+        if requested_types and file_type not in types:
+            continue
         result.append(
             {
                 "id": f.id,
                 "path": f.path,
-                "type": classify_path(f.path),
+                "type": file_type,
+                # Computed after the type filter: for folders this lists the
+                # directory, so files skipped above skip that cost entirely.
                 "thumbnail_type": thumbnail_type_for(f.path),
                 "tags": [{"id": t.id, "name": t.name} for t in f.tags],
             }
