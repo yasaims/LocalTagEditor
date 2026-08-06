@@ -69,6 +69,32 @@ def thumbnail_type_for(path):
     return None
 
 
+@api.route("/files/browse", methods=["GET"])
+def browse_file():
+    """Open a native file picker on the machine running the backend.
+
+    Only meaningful when the caller is on the same PC as the backend -- a
+    phone hitting this over the LAN would pop the dialog on the server's
+    screen, not the phone's.
+    """
+    import tkinter as tk
+    from tkinter import filedialog
+
+    root = tk.Tk()
+    root.withdraw()
+    root.attributes("-topmost", True)
+    try:
+        path = filedialog.askopenfilename()
+    finally:
+        root.destroy()
+    # tkinter returns forward-slash paths on Windows even though the rest of
+    # the app assumes backslash-separated paths (see FileItem/FileDetail's
+    # path.split("\\") display-name logic).
+    if path:
+        path = os.path.normpath(path)
+    return jsonify({"path": path or None})
+
+
 @api.route("/files", methods=["POST"])
 def register_file():
     data = request.get_json()
