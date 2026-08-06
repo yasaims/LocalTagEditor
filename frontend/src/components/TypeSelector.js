@@ -7,6 +7,7 @@ import FolderIcon from "@mui/icons-material/Folder";
 import ImageIcon from "@mui/icons-material/Image";
 import VideoLibraryIcon from "@mui/icons-material/VideoLibrary";
 import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
+import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 
 // value は backend の classify_path が返すもの。label は画面には出さず、
 // aria-label と Tooltip でのみ使う。
@@ -14,6 +15,7 @@ const FILE_TYPES = [
   { value: "folder", label: "フォルダ", Icon: FolderIcon },
   { value: "image", label: "画像", Icon: ImageIcon },
   { value: "video", label: "動画", Icon: VideoLibraryIcon },
+  { value: "pdf", label: "PDF", Icon: PictureAsPdfIcon },
   { value: "other", label: "その他", Icon: InsertDriveFileIcon },
 ];
 

@@ -9,6 +9,7 @@ This repository contains a simple tag-based file manager that runs entirely on a
 - **Frontend:** React
 - **Supported image formats:** PNG, JPG, JPEG, GIF, WEBP
 - **Supported video formats:** MP4, WEBM, OGG
+- **Supported document formats:** PDF
 
 ## Setup
 

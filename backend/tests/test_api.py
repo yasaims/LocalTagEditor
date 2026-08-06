@@ -210,11 +210,32 @@ def test_selecting_every_type_matches_the_unfiltered_listing(
     register(tmp_path / "a.mp4")
     register(media_folder)
     register(tmp_path / "notes.txt")
+    register(tmp_path / "doc.pdf")
 
-    all_types = client.get("/files?type=folder&type=image&type=video&type=other").get_json()
+    all_types = client.get(
+        "/files?type=folder&type=image&type=video&type=pdf&type=other"
+    ).get_json()
     unfiltered = client.get("/files").get_json()
 
     assert {f["id"] for f in all_types} == {f["id"] for f in unfiltered}
+
+
+def test_register_classifies_a_pdf(client, register, tmp_path):
+    file_id = register(tmp_path / "doc.pdf")
+
+    data = client.get(f"/files/{file_id}").get_json()
+
+    assert data["type"] == "pdf"
+    assert data["thumbnail_type"] is None
+
+
+def test_pdf_type_filter_returns_only_pdfs(client, register, tmp_path):
+    pdf = register(tmp_path / "doc.pdf")
+    register(tmp_path / "a.jpg")
+
+    matched = client.get("/files?type=pdf").get_json()
+
+    assert [f["id"] for f in matched] == [pdf]
 
 
 # --- folder contents ---------------------------------------------------------

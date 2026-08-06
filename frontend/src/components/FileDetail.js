@@ -152,6 +152,15 @@ function FileDetail() {
         />
       );
     }
+    if (file.type === "pdf") {
+      return (
+        <iframe
+          title={file.path}
+          src={`${api}/files/${file.id}/content`}
+          style={{ width: "100%", height: "100vh", border: "none" }}
+        />
+      );
+    }
     return <a href={file.path}>{file.path}</a>;
   };
 

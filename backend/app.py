@@ -18,7 +18,8 @@ api = Blueprint("api", __name__)
 
 IMAGE_EXTS = {".png", ".jpg", ".jpeg", ".gif", ".webp"}
 VIDEO_EXTS = {".mp4", ".webm", ".ogg"}
-FILE_TYPES = {"folder", "image", "video", "other"}
+PDF_EXTS = {".pdf"}
+FILE_TYPES = {"folder", "image", "video", "pdf", "other"}
 
 
 @functools.lru_cache(maxsize=1)
@@ -107,6 +108,8 @@ def classify_path(path):
         return "image"
     if ext in VIDEO_EXTS:
         return "video"
+    if ext in PDF_EXTS:
+        return "pdf"
     return "other"
 
 

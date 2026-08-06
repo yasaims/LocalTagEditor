@@ -9,6 +9,7 @@ import FolderIcon from "@mui/icons-material/Folder";
 import ImageIcon from "@mui/icons-material/Image";
 import VideoLibraryIcon from "@mui/icons-material/VideoLibrary";
 import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
+import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 import { Link } from "react-router-dom";
 
 // Base URL of backend API (default localhost). Read once at module scope: it is
@@ -20,6 +21,7 @@ const TYPE_ICONS = {
   folder: FolderIcon,
   image: ImageIcon,
   video: VideoLibraryIcon,
+  pdf: PictureAsPdfIcon,
   other: InsertDriveFileIcon,
 };
 
