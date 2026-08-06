@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import Stack from '@mui/material/Stack';
+import Box from '@mui/material/Box';
 import Pagination from '@mui/material/Pagination';
 import FileItem from './FileItem';
 
-const PER_PAGE = 10;
+const PER_PAGE = 30;
 
 function FileList({ files, refresh, canManage }) {
   const [page, setPage] = useState(() => {
@@ -42,9 +43,18 @@ function FileList({ files, refresh, canManage }) {
 
   return (
     <Stack>
-      {paginated.map((file) => (
-        <FileItem key={file.id} file={file} refresh={refresh} canManage={canManage} />
-      ))}
+      <Box
+        sx={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
+          gap: 1,
+          alignItems: 'stretch',
+        }}
+      >
+        {paginated.map((file) => (
+          <FileItem key={file.id} file={file} refresh={refresh} canManage={canManage} />
+        ))}
+      </Box>
       {count > 1 && (
         <Pagination
           count={count}
