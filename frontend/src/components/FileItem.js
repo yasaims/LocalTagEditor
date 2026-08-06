@@ -39,24 +39,29 @@ function FileItem({ file, refresh, canManage }) {
         <img
           src={`${api}/files/${file.id}/content`}
           alt={file.path}
-          style={{ maxWidth: "200px" }}
+          style={{
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+            display: "block",
+          }}
         />
       );
     }
     if (file.thumbnail_type === "video") {
       return (
-        <video controls width="200" src={`${api}/files/${file.id}/content`} />
+        <video
+          controls
+          src={`${api}/files/${file.id}/content`}
+          style={{ width: "100%", height: "100%", objectFit: "cover" }}
+        />
       );
     }
-    return (
-      <Box sx={{ display: "flex", justifyContent: "center", py: 3 }}>
-        <TypeIcon sx={{ fontSize: 64 }} color="disabled" />
-      </Box>
-    );
+    return <TypeIcon sx={{ fontSize: 64 }} color="disabled" />;
   };
 
   return (
-    <Paper sx={{ p: 1, mb: 1 }}>
+    <Paper sx={{ p: 1, height: "100%", display: "flex", flexDirection: "column" }}>
       <Box sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}>
         <Box
           sx={{ display: "flex", alignItems: "center", gap: 0.5, minWidth: 0 }}
@@ -67,7 +72,6 @@ function FileItem({ file, refresh, canManage }) {
             sx={{
               textTransform: "uppercase",
               fontWeight: "bold",
-              fontSize: "1.275rem",
             }}
             noWrap
           >
@@ -89,11 +93,19 @@ function FileItem({ file, refresh, canManage }) {
       <Box
         component={Link}
         to={`/files/${file.id}`}
-        sx={{ display: "block", mb: 1 }}
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          height: 160,
+          mb: 1,
+          overflow: "hidden",
+          bgcolor: "#f5f5f5",
+        }}
       >
         {preview()}
       </Box>
-      <Stack direction="row" spacing={1} sx={{ mb: 1 }} flexWrap="wrap">
+      <Stack direction="row" spacing={1} sx={{ mt: "auto" }} flexWrap="wrap">
         {file.tags.map((t) => (
           <Chip key={t.id} label={t.name} />
         ))}
