@@ -21,6 +21,50 @@ This repository contains a simple tag-based file manager that runs entirely on a
 - **Supported image formats:** PNG, JPG, JPEG, GIF, WEBP
 - **Supported video formats:** MP4, WEBM, OGG
 
+## Screenshots
+
+The screenshots below were taken against sample files; the artwork in them is
+generated placeholder graphics, not real photos.
+
+### Library
+
+Registered files are shown as a grid of thumbnails. Images and videos are
+previewed inline, while folders fall back to the first media file inside them
+and other types show an icon for their kind. The path bar at the top only
+appears when the connection is allowed to register files (see `WRITE_MODE`).
+
+![Library view listing tagged images, a folder, a video, a PDF and a text file](docs/images/file-list.png)
+
+### Filtering by tag and item type
+
+Ticking tags in the sidebar narrows the list to files carrying *all* of the
+selected tags; the icon row above it filters by item type on top of that.
+
+![The same library filtered down to the four files tagged "landscape"](docs/images/tag-filter.png)
+
+### File detail and tagging
+
+Opening a file shows a full-size preview with its tags on the right. Tags can
+be typed in, added with one click from the list of existing tags, or removed
+from the chip itself.
+
+![Detail view of an image with its tag panel](docs/images/file-detail.png)
+
+### Folders
+
+A registered folder is browsed as a set: the thumbnail strip switches the
+preview, and clicking the left or right half of the preview steps through the
+items.
+
+![Detail view of a registered folder with its thumbnail strip](docs/images/folder-detail.png)
+
+### On a smartphone
+
+On narrow screens the sidebar collapses into a drawer opened by the **Tags**
+button.
+
+![The list view on a phone-sized screen next to the same view with the tag drawer open](docs/images/mobile.png)
+
 ## Setup
 
 ### Backend
