@@ -331,6 +331,18 @@ def test_browse_from_remote_address_is_rejected(make_app):
     assert response.status_code == 403
 
 
+def test_browse_rejects_an_unknown_kind(client):
+    """Also pins that the check runs before tkinter opens anything.
+
+    A dialog would block on a human forever, and the CI runner has no display
+    at all, so this test only stays runnable while validation comes first.
+    """
+    response = client.get("/files/browse?kind=bogus")
+
+    assert response.status_code == 400
+    assert response.get_json()["error"] == "invalid kind"
+
+
 def test_delete_from_remote_address_is_rejected(make_app, tmp_path):
     client = make_app().test_client()
     image = tmp_path / "picture.jpg"
