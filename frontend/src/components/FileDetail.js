@@ -21,7 +21,7 @@ function FileDetail() {
   const [index, setIndex] = useState(0);
   const [newTag, setNewTag] = useState("");
   const [allTags, setAllTags] = useState([]);
-  const isSmall = useMediaQuery('(max-width:600px)');
+  const isSmall = useMediaQuery("(max-width:600px)");
 
   // Memoised so that the effect below can depend on it without re-running on
   // every render.
@@ -84,26 +84,15 @@ function FileDetail() {
     if (file.type === "folder") {
       if (!items.length) return <Typography>Folder: {file.path}</Typography>;
       const current = items[index];
-      const src = `${api}/files/${file.id}/content/${encodeURIComponent(
-        current.name
-      )}`;
-      const handlePrev = () =>
-        setIndex((index - 1 + items.length) % items.length);
+      const src = `${api}/files/${file.id}/content/${encodeURIComponent(current.name)}`;
+      const handlePrev = () => setIndex((index - 1 + items.length) % items.length);
       const handleNext = () => setIndex((index + 1) % items.length);
       return (
         <Box sx={{ position: "relative", maxWidth: "100%" }}>
           {current.type === "image" ? (
-            <img
-              src={src}
-              alt={current.name}
-              style={{ width: "50%", maxHeight: "100vh" }}
-            />
+            <img src={src} alt={current.name} style={{ width: "50%", maxHeight: "100vh" }} />
           ) : (
-            <video
-              controls
-              style={{ width: "100%", maxHeight: "100vh" }}
-              src={src}
-            />
+            <video controls style={{ width: "100%", maxHeight: "100vh" }} src={src} />
           )}
           {current.type !== "video" && (
             <>
@@ -145,11 +134,7 @@ function FileDetail() {
     }
     if (file.thumbnail_type === "video") {
       return (
-        <video
-          controls
-          style={{ maxHeight: "100vh" }}
-          src={`${api}/files/${file.id}/content`}
-        />
+        <video controls style={{ maxHeight: "100vh" }} src={`${api}/files/${file.id}/content`} />
       );
     }
     if (file.type === "pdf") {
@@ -225,9 +210,7 @@ function FileDetail() {
           sx={{ mt: 2, flexWrap: "wrap", mr: isSmall ? 0 : "260px" }}
         >
           {items.map((it, idx) => {
-            const src = `${api}/files/${file.id}/content/${encodeURIComponent(
-              it.name
-            )}`;
+            const src = `${api}/files/${file.id}/content/${encodeURIComponent(it.name)}`;
             return (
               <Box
                 key={it.name}

@@ -1,34 +1,34 @@
-import React, { useState, useEffect } from 'react';
-import Stack from '@mui/material/Stack';
-import Box from '@mui/material/Box';
-import Pagination from '@mui/material/Pagination';
-import FileItem from './FileItem';
+import React, { useState, useEffect } from "react";
+import Stack from "@mui/material/Stack";
+import Box from "@mui/material/Box";
+import Pagination from "@mui/material/Pagination";
+import FileItem from "./FileItem";
 
 const PER_PAGE = 30;
 
 function FileList({ files, refresh, canManage }) {
   const [page, setPage] = useState(() => {
-    const saved = sessionStorage.getItem('fileListPage');
+    const saved = sessionStorage.getItem("fileListPage");
     return saved ? parseInt(saved, 10) : 1;
   });
 
   useEffect(() => {
-    const savedScroll = sessionStorage.getItem('fileListScroll');
-    const container = document.getElementById('content');
+    const savedScroll = sessionStorage.getItem("fileListScroll");
+    const container = document.getElementById("content");
     if (savedScroll && container) {
       container.scrollTop = parseInt(savedScroll, 10);
     }
   }, []);
 
   useEffect(() => {
-    sessionStorage.setItem('fileListPage', page.toString());
+    sessionStorage.setItem("fileListPage", page.toString());
   }, [page]);
 
   useEffect(() => {
     return () => {
-      const container = document.getElementById('content');
+      const container = document.getElementById("content");
       if (container) {
-        sessionStorage.setItem('fileListScroll', container.scrollTop.toString());
+        sessionStorage.setItem("fileListScroll", container.scrollTop.toString());
       }
     };
   }, []);
@@ -45,10 +45,10 @@ function FileList({ files, refresh, canManage }) {
     <Stack>
       <Box
         sx={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))",
           gap: 1,
-          alignItems: 'stretch',
+          alignItems: "stretch",
         }}
       >
         {paginated.map((file) => (
@@ -60,7 +60,7 @@ function FileList({ files, refresh, canManage }) {
           count={count}
           page={page}
           onChange={(e, value) => setPage(value)}
-          sx={{ mt: 2, mb: 2, alignSelf: 'center' }}
+          sx={{ mt: 2, mb: 2, alignSelf: "center" }}
         />
       )}
     </Stack>

@@ -37,7 +37,7 @@ appears when the connection is allowed to register files (see `WRITE_MODE`).
 
 ### Filtering by tag and item type
 
-Ticking tags in the sidebar narrows the list to files carrying *all* of the
+Ticking tags in the sidebar narrows the list to files carrying _all_ of the
 selected tags; the icon row above it filters by item type on top of that.
 
 ![The same library filtered down to the four files tagged "landscape"](docs/images/tag-filter.png)
@@ -119,5 +119,13 @@ flask db check          # models and migrations agree
 
 ```bash
 cd frontend
-CI=true npm run build   # CI=true turns ESLint warnings into build errors
+npm run lint             # ESLint
+npm run format:check     # Prettier
+npm run test:ci          # Jest + React Testing Library
+
+# Linux
+CI=true npm run build
+
+# Windows
+$env:CI="true"; npm run build
 ```

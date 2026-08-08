@@ -65,9 +65,7 @@ function FileItem({ file, refresh, canManage }) {
   return (
     <Paper sx={{ p: 1, height: "100%", display: "flex", flexDirection: "column" }}>
       <Box sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}>
-        <Box
-          sx={{ display: "flex", alignItems: "center", gap: 0.5, minWidth: 0 }}
-        >
+        <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, minWidth: 0 }}>
           <TypeIcon fontSize="small" color="primary" />
           <Typography
             variant="subtitle2"

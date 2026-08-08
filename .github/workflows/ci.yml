@@ -92,9 +92,20 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      # CI=true makes react-scripts treat ESLint warnings as errors, so this is
-      # the lint gate as well as the build. REACT_APP_API_URL is baked into the
-      # bundle at build time and would otherwise land as "undefined".
+      - name: Lint
+        run: npm run lint
+
+      - name: Check formatting
+        run: npm run format:check
+
+      - name: Test
+        run: npm run test:ci
+
+      # react-scripts also runs ESLint as part of the webpack build via its
+      # own ESLintPlugin (using the same .eslintrc.json), and CI=true makes it
+      # treat warnings as errors — so this doubles as a second lint pass on
+      # top of the explicit `Lint` step above. REACT_APP_API_URL is baked into
+      # the bundle at build time and would otherwise land as "undefined".
       - name: Build
         env:
           CI: "true"
