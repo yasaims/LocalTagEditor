@@ -141,12 +141,21 @@ def thumbnail_type_for(path):
 @api.route("/files/browse", methods=["GET"])
 @local_only
 def browse_file():
-    """Open a native file picker on the machine running the backend.
+    """Open a native picker on the machine running the backend.
+
+    `kind` selects what may be picked: "file" (default) or "folder" -- both are
+    registrable, so the frontend offers each.
 
     Only meaningful when the caller is on the same PC as the backend -- a
     phone hitting this over the LAN would pop the dialog on the server's
     screen, not the phone's.
     """
+    kind = request.args.get("kind", "file")
+    # Validated before tkinter is touched so a bad request cannot leave a modal
+    # dialog waiting on a human (the tests rely on this).
+    if kind not in ("file", "folder"):
+        return jsonify({"error": "invalid kind"}), 400
+
     import tkinter as tk
     from tkinter import filedialog
 
@@ -154,7 +163,7 @@ def browse_file():
     root.withdraw()
     root.attributes("-topmost", True)
     try:
-        path = filedialog.askopenfilename()
+        path = filedialog.askdirectory() if kind == "folder" else filedialog.askopenfilename()
     finally:
         root.destroy()
     # tkinter returns forward-slash paths on Windows even though the rest of
