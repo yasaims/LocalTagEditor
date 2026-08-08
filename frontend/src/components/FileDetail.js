@@ -234,8 +234,8 @@ function FileDetail() {
                 onClick={() => setIndex(idx)}
                 sx={{
                   cursor: "pointer",
-                  border:
-                    idx === index ? "2px solid #1976d2" : "1px solid #ccc",
+                  border: idx === index ? "2px solid" : "1px solid",
+                  borderColor: idx === index ? "primary.main" : "divider",
                 }}
               >
                 {it.type === "image" ? (

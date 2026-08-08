@@ -1,15 +1,22 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Drawer from "@mui/material/Drawer";
+import IconButton from "@mui/material/IconButton";
+import Tooltip from "@mui/material/Tooltip";
 import useMediaQuery from "@mui/material/useMediaQuery";
+import { ThemeProvider } from "@mui/material/styles";
+import CssBaseline from "@mui/material/CssBaseline";
+import Brightness4Icon from "@mui/icons-material/Brightness4";
+import Brightness7Icon from "@mui/icons-material/Brightness7";
 import FileList from "./components/FileList";
 import TagSelector from "./components/TagSelector";
 import TypeSelector from "./components/TypeSelector";
 import FileRegister from "./components/FileRegister";
 import FileDetail from "./components/FileDetail";
 import { Routes, Route, Link } from "react-router-dom";
+import { getTheme, THEME_MODE_STORAGE_KEY } from "./theme";
 
 // Allow overriding the API URL so the app can be accessed from other devices.
 // Read once at module scope: it is baked in at build time, so it is not a value
@@ -24,6 +31,17 @@ function App() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [canManage, setCanManage] = useState(false);
   const isSmall = useMediaQuery("(max-width:600px)");
+  const prefersDark = useMediaQuery("(prefers-color-scheme: dark)");
+  const [mode, setMode] = useState(
+    () => localStorage.getItem(THEME_MODE_STORAGE_KEY) || (prefersDark ? "dark" : "light")
+  );
+  const theme = useMemo(() => getTheme(mode), [mode]);
+
+  useEffect(() => {
+    localStorage.setItem(THEME_MODE_STORAGE_KEY, mode);
+  }, [mode]);
+
+  const toggleMode = () => setMode((m) => (m === "dark" ? "light" : "dark"));
 
   // Both are memoised so the effects below can depend on them directly.
   // fetchFiles' identity changes only when the filter does, which is exactly
@@ -69,20 +87,33 @@ function App() {
   }, [fetchCapabilities]);
 
   const sidebar = (
-    <Box sx={{ width: 240, p: 2, bgcolor: "#f5f5f5" }}>
-      <Typography
-        component={Link}
-        to="/"
-        variant="h5"
-        sx={{
-          textDecoration: "none",
-          color: "inherit",
-          mb: 2,
-          display: "block",
-        }}
-      >
-        Local Tag Editor
-      </Typography>
+    <Box
+      sx={{
+        width: 240,
+        p: 2,
+        bgcolor: "background.paper",
+        borderRight: 1,
+        borderColor: "divider",
+      }}
+    >
+      <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 2 }}>
+        <Typography
+          component={Link}
+          to="/"
+          variant="h5"
+          sx={{
+            textDecoration: "none",
+            color: "inherit",
+          }}
+        >
+          Local Tag Editor
+        </Typography>
+        <Tooltip title={mode === "dark" ? "Light mode" : "Dark mode"}>
+          <IconButton onClick={toggleMode} aria-label="toggle dark mode" size="small">
+            {mode === "dark" ? <Brightness7Icon /> : <Brightness4Icon />}
+          </IconButton>
+        </Tooltip>
+      </Box>
       <Typography variant="subtitle2">Item Type</Typography>
       <TypeSelector selected={selectedTypes} onChange={setSelectedTypes} />
       <TagSelector
@@ -113,35 +144,38 @@ function App() {
   );
 
   return (
-    <Box sx={{ display: "flex", height: "100vh" }}>
-      {isSmall ? (
-        <>
-          <Drawer open={drawerOpen} onClose={() => setDrawerOpen(false)}>
-            {sidebar}
-          </Drawer>
-          <Box
-            id="content"
-            sx={{ flexGrow: 1, p: 2, overflow: "auto", width: "100%" }}
-          >
-            <Button
-              variant="outlined"
-              onClick={() => setDrawerOpen(true)}
-              sx={{ mb: 2 }}
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <Box sx={{ display: "flex", height: "100vh" }}>
+        {isSmall ? (
+          <>
+            <Drawer open={drawerOpen} onClose={() => setDrawerOpen(false)}>
+              {sidebar}
+            </Drawer>
+            <Box
+              id="content"
+              sx={{ flexGrow: 1, p: 2, overflow: "auto", width: "100%" }}
             >
-              Tags
-            </Button>
-            {routes}
-          </Box>
-        </>
-      ) : (
-        <>
-          {sidebar}
-          <Box id="content" sx={{ flexGrow: 1, p: 2, overflow: "auto" }}>
-            {routes}
-          </Box>
-        </>
-      )}
-    </Box>
+              <Button
+                variant="outlined"
+                onClick={() => setDrawerOpen(true)}
+                sx={{ mb: 2 }}
+              >
+                Tags
+              </Button>
+              {routes}
+            </Box>
+          </>
+        ) : (
+          <>
+            {sidebar}
+            <Box id="content" sx={{ flexGrow: 1, p: 2, overflow: "auto" }}>
+              {routes}
+            </Box>
+          </>
+        )}
+      </Box>
+    </ThemeProvider>
   );
 }
 

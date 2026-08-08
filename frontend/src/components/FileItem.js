@@ -102,7 +102,7 @@ function FileItem({ file, refresh, canManage }) {
           height: 160,
           mb: 1,
           overflow: "hidden",
-          bgcolor: "#f5f5f5",
+          bgcolor: "action.hover",
         }}
       >
         {preview()}
