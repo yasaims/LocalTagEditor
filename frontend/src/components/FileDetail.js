@@ -108,31 +108,31 @@ function FileDetail({ canManage = false, onDeleted }) {
           ) : (
             <video controls style={{ width: "100%", maxHeight: "100vh" }} src={src} />
           )}
-{current.type !== "video" && (
+          {current.type !== "video" && (
             <>
-          <Box
-            sx={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              bottom: 0,
-              width: "50%",
-              cursor: "pointer",
-            }}
-            onClick={handlePrev}
-          />
-          <Box
-            sx={{
-              position: "absolute",
-              top: 0,
-              right: 0,
-              bottom: 0,
-              width: "50%",
-              cursor: "pointer",
-            }}
-            onClick={handleNext}
-          />
-</>
+              <Box
+                sx={{
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
+                  bottom: 0,
+                  width: "50%",
+                  cursor: "pointer",
+                }}
+                onClick={handlePrev}
+              />
+              <Box
+                sx={{
+                  position: "absolute",
+                  top: 0,
+                  right: 0,
+                  bottom: 0,
+                  width: "50%",
+                  cursor: "pointer",
+                }}
+                onClick={handleNext}
+              />
+            </>
           )}
         </Box>
       );
