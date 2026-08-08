@@ -24,6 +24,20 @@ describe("FileDetail", () => {
     expect(screen.getByText("Path: C:\\photos\\vacation\\beach.jpg")).toBeInTheDocument();
   });
 
+  it("derives the title from a folder path with a trailing backslash", async () => {
+    const file = makeFile({
+      id: 9,
+      path: "C:\\albums\\trip\\",
+      type: "folder",
+      thumbnail_type: null,
+    });
+    mockApi({ "GET /files/9": file, "GET /files/9/items": [], "GET /tags": [] });
+
+    renderDetail(9);
+
+    expect(await screen.findByText("trip")).toBeInTheDocument();
+  });
+
   it("steps through folder items and wraps at both ends", async () => {
     const user = userEvent.setup();
     const file = makeFile({

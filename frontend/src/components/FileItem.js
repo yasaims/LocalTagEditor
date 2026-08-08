@@ -10,6 +10,7 @@ import VideoLibraryIcon from "@mui/icons-material/VideoLibrary";
 import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
 import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 import { Link } from "react-router-dom";
+import { getDisplayName } from "../pathUtils";
 
 // Base URL of backend API (default localhost). Read once at module scope: it is
 // baked in at build time, so it is not a value that can change while rendering.
@@ -25,7 +26,7 @@ const TYPE_ICONS = {
 };
 
 function FileItem({ file }) {
-  const name = file.path.split("\\").pop();
+  const name = getDisplayName(file.path);
   const TypeIcon = TYPE_ICONS[file.type] || InsertDriveFileIcon;
 
   const preview = () => {

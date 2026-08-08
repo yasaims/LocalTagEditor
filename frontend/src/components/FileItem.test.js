@@ -9,6 +9,12 @@ describe("FileItem", () => {
     expect(screen.getByText("beach.jpg")).toBeInTheDocument();
   });
 
+  it("derives the display name from a folder path with a trailing backslash", () => {
+    const file = makeFile({ type: "folder", path: "C:\\photos\\vacation\\" });
+    renderWithRouter(<FileItem file={file} />);
+    expect(screen.getByText("vacation")).toBeInTheDocument();
+  });
+
   it("renders an <img> when thumbnail_type is image", () => {
     const file = makeFile({ id: 7, thumbnail_type: "image" });
     renderWithRouter(<FileItem file={file} />);

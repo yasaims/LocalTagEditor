@@ -8,6 +8,7 @@ import Stack from "@mui/material/Stack";
 import Chip from "@mui/material/Chip";
 import TextField from "@mui/material/TextField";
 import useMediaQuery from "@mui/material/useMediaQuery";
+import { getDisplayName } from "../pathUtils";
 
 // Use REACT_APP_API_URL when provided for network access. Read once at module
 // scope: it is baked in at build time, so it is not a value that can change
@@ -161,7 +162,7 @@ function FileDetail({ canManage = false, onDeleted }) {
     return <a href={file.path}>{file.path}</a>;
   };
 
-  const title = file.path.split("\\").pop();
+  const title = getDisplayName(file.path);
   return (
     <Box>
       <Typography variant="h6" sx={{ mb: 1 }}>
