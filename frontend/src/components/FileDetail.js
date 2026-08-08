@@ -32,6 +32,10 @@ function FileDetail({ canManage = false, onDeleted }) {
       .then((data) => setAllTags(data.map((t) => t.name)));
   }, []);
 
+  const scrollToTop = () => {
+    document.getElementById("content")?.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   useEffect(() => {
     const fetchFile = async () => {
       const res = await fetch(`${api}/files/${id}`);
@@ -222,7 +226,10 @@ function FileDetail({ canManage = false, onDeleted }) {
             return (
               <Box
                 key={it.name}
-                onClick={() => setIndex(idx)}
+                onClick={() => {
+                  setIndex(idx);
+                  scrollToTop();
+                }}
                 sx={{
                   cursor: "pointer",
                   border: idx === index ? "2px solid" : "1px solid",
