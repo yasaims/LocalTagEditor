@@ -131,11 +131,14 @@ function App() {
                 <FileRegister onRegistered={fetchFiles} />
               </Box>
             )}
-            <FileList files={files} refresh={fetchFiles} canManage={canManage} />
+            <FileList files={files} />
           </>
         }
       />
-      <Route path="/files/:id" element={<FileDetail />} />
+      <Route
+        path="/files/:id"
+        element={<FileDetail canManage={canManage} onDeleted={fetchFiles} />}
+      />
     </Routes>
   );
 

@@ -5,8 +5,11 @@ import { renderWithRouter, mockApi, makeFile } from "../test-utils";
 
 // FileDetail reads :id via useParams, so every test needs to be reached
 // through a matching route rather than rendered directly.
-function renderDetail(id) {
-  return renderWithRouter(<FileDetail />, { route: `/files/${id}`, path: "/files/:id" });
+function renderDetail(id, props = {}) {
+  return renderWithRouter(<FileDetail {...props} />, {
+    route: `/files/${id}`,
+    path: "/files/:id",
+  });
 }
 
 describe("FileDetail", () => {
@@ -158,6 +161,69 @@ describe("FileDetail", () => {
 
     // The iframe carries no role but is titled with the file's path.
     expect(screen.getByTitle(file.path)).toHaveAttribute("src", "http://api.test/files/14/content");
+  });
+
+  it("hides the delete button when canManage is false (default)", async () => {
+    const file = makeFile({ id: 16 });
+    mockApi({ "GET /files/16": file, "GET /tags": [] });
+    renderDetail(16);
+
+    await screen.findByText("sample.jpg");
+
+    expect(screen.queryByRole("button", { name: "Delete This Entry" })).not.toBeInTheDocument();
+  });
+
+  it("shows the delete button when canManage is true", async () => {
+    const file = makeFile({ id: 17 });
+    mockApi({ "GET /files/17": file, "GET /tags": [] });
+    renderDetail(17, { canManage: true });
+
+    await screen.findByText("sample.jpg");
+
+    expect(screen.getByRole("button", { name: "Delete This Entry" })).toBeInTheDocument();
+  });
+
+  it("deletes the file, notifies the caller, and navigates back to / when confirmed", async () => {
+    const user = userEvent.setup();
+    const file = makeFile({ id: 18 });
+    const fetchMock = mockApi({
+      "GET /files/18": file,
+      "GET /tags": [],
+      "DELETE /files/18": {},
+    });
+    const onDeleted = jest.fn();
+    window.confirm = jest.fn(() => true);
+    renderDetail(18, { canManage: true, onDeleted });
+
+    await screen.findByText("sample.jpg");
+    await user.click(screen.getByRole("button", { name: "Delete This Entry" }));
+
+    expect(window.confirm).toHaveBeenCalledWith("Delete this entry?");
+    expect(fetchMock).toHaveBeenCalledWith(
+      "http://api.test/files/18",
+      expect.objectContaining({ method: "DELETE" }),
+    );
+    expect(onDeleted).toHaveBeenCalled();
+    // Navigated away from /files/18 -- nothing matches "/" in the single-route
+    // test harness, so the page's own content disappears.
+    await waitFor(() => expect(screen.queryByText("sample.jpg")).not.toBeInTheDocument());
+  });
+
+  it("does not delete the file when the confirmation is cancelled", async () => {
+    const user = userEvent.setup();
+    const file = makeFile({ id: 19 });
+    const fetchMock = mockApi({ "GET /files/19": file, "GET /tags": [] });
+    const onDeleted = jest.fn();
+    window.confirm = jest.fn(() => false);
+    renderDetail(19, { canManage: true, onDeleted });
+
+    await screen.findByText("sample.jpg");
+    fetchMock.mockClear();
+    await user.click(screen.getByRole("button", { name: "Delete This Entry" }));
+
+    expect(fetchMock).not.toHaveBeenCalled();
+    expect(onDeleted).not.toHaveBeenCalled();
+    expect(screen.getByText("sample.jpg")).toBeInTheDocument();
   });
 
   it("falls back to a plain link for types with no preview", async () => {

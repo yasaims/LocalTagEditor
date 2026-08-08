@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import Stack from "@mui/material/Stack";
-
+import ArrowCircleUpIcon from "@mui/icons-material/ArrowCircleUp";
 // Strip a single pair of surrounding double quotes, as produced by
 // "Copy as path" in Windows Explorer.
 function stripSurroundingQuotes(value) {
@@ -40,6 +40,20 @@ function FileRegister({ onRegistered }) {
 
   return (
     <Stack direction="row" spacing={1}>
+      <Button
+        variant="outlined"
+        aria-label="参照"
+        sx={{
+          border: "none",
+          borderColor: "divider",
+          minWidth: "24px",
+          height: "fill",
+          p: 0,
+        }}
+        onClick={browse}
+      >
+        <ArrowCircleUpIcon />
+      </Button>
       <TextField
         value={path}
         onChange={(e) => setPath(e.target.value)}
@@ -47,9 +61,7 @@ function FileRegister({ onRegistered }) {
         size="small"
         sx={{ width: 300 }}
       />
-      <Button variant="outlined" onClick={browse}>
-        参照
-      </Button>
+
       <Button variant="contained" onClick={register}>
         Register
       </Button>

@@ -6,7 +6,7 @@ import FileItem from "./FileItem";
 
 const PER_PAGE = 30;
 
-function FileList({ files, refresh, canManage }) {
+function FileList({ files }) {
   const [page, setPage] = useState(() => {
     const saved = sessionStorage.getItem("fileListPage");
     return saved ? parseInt(saved, 10) : 1;
@@ -52,7 +52,7 @@ function FileList({ files, refresh, canManage }) {
         }}
       >
         {paginated.map((file) => (
-          <FileItem key={file.id} file={file} refresh={refresh} canManage={canManage} />
+          <FileItem key={file.id} file={file} />
         ))}
       </Box>
       {count > 1 && (

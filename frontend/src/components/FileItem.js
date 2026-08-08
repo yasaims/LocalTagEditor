@@ -2,7 +2,6 @@ import React from "react";
 import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
 import Chip from "@mui/material/Chip";
-import Button from "@mui/material/Button";
 import Stack from "@mui/material/Stack";
 import Box from "@mui/material/Box";
 import FolderIcon from "@mui/icons-material/Folder";
@@ -25,13 +24,7 @@ const TYPE_ICONS = {
   other: InsertDriveFileIcon,
 };
 
-function FileItem({ file, refresh, canManage }) {
-  const deleteItem = async () => {
-    if (!window.confirm("Delete this entry?")) return;
-    await fetch(`${api}/files/${file.id}`, { method: "DELETE" });
-    refresh();
-  };
-
+function FileItem({ file }) {
   const name = file.path.split("\\").pop();
   const TypeIcon = TYPE_ICONS[file.type] || InsertDriveFileIcon;
 
@@ -63,7 +56,11 @@ function FileItem({ file, refresh, canManage }) {
   };
 
   return (
-    <Paper sx={{ p: 1, height: "100%", display: "flex", flexDirection: "column" }}>
+    <Paper
+      component={Link}
+      to={`/files/${file.id}`}
+      sx={{ p: 1, height: "100%", display: "flex", flexDirection: "column" }}
+    >
       <Box sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}>
         <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, minWidth: 0 }}>
           <TypeIcon fontSize="small" color="primary" />
@@ -78,21 +75,8 @@ function FileItem({ file, refresh, canManage }) {
             {name}
           </Typography>
         </Box>
-        {canManage && (
-          <Button
-            variant="contained"
-            color="error"
-            size="small"
-            sx={{ minWidth: "24px", height: "24px", p: 0 }}
-            onClick={deleteItem}
-          >
-            X
-          </Button>
-        )}
       </Box>
       <Box
-        component={Link}
-        to={`/files/${file.id}`}
         sx={{
           display: "flex",
           alignItems: "center",

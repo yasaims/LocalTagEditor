@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
@@ -14,8 +14,9 @@ import useMediaQuery from "@mui/material/useMediaQuery";
 // while rendering and does not belong in any hook dependency list.
 const api = process.env.REACT_APP_API_URL || "http://localhost:5000";
 
-function FileDetail() {
+function FileDetail({ canManage = false, onDeleted }) {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [file, setFile] = useState(null);
   const [items, setItems] = useState([]);
   const [index, setIndex] = useState(0);
@@ -79,6 +80,13 @@ function FileDetail() {
   };
 
   if (!file) return null;
+
+  const deleteItem = async () => {
+    if (!window.confirm("Delete this entry?")) return;
+    await fetch(`${api}/files/${file.id}`, { method: "DELETE" });
+    onDeleted?.();
+    navigate("/");
+  };
 
   const preview = () => {
     if (file.type === "folder") {
@@ -231,9 +239,22 @@ function FileDetail() {
           })}
         </Stack>
       )}
-      <Typography variant="body2" sx={{ mt: 2, mr: isSmall ? 0 : "260px" }}>
-        Path: {file.path}
-      </Typography>
+      <Box sx={{ display: "flex", mt: 2 }}>
+        <Typography variant="body2" sx={{ mt: 0, mr: isSmall ? 0 : "260px" }}>
+          Path: {file.path}
+        </Typography>
+        {canManage && (
+          <Button
+            variant="outlined"
+            color="error"
+            size="small"
+            sx={{ minWidth: "24px", height: "24px", p: 0 }}
+            onClick={deleteItem}
+          >
+            Delete This Entry
+          </Button>
+        )}
+      </Box>
     </Box>
   );
 }

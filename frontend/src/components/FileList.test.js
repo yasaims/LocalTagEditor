@@ -12,7 +12,7 @@ function makeFiles(count) {
 describe("FileList", () => {
   it("renders a card for every file", () => {
     const files = makeFiles(5);
-    renderWithRouter(<FileList files={files} refresh={() => {}} canManage={false} />);
+    renderWithRouter(<FileList files={files} />);
 
     for (let i = 0; i < 5; i++) {
       expect(screen.getByText(`${i}.jpg`)).toBeInTheDocument();
@@ -20,12 +20,12 @@ describe("FileList", () => {
   });
 
   it("hides the pager when everything fits on one page", () => {
-    renderWithRouter(<FileList files={makeFiles(30)} refresh={() => {}} canManage={false} />);
+    renderWithRouter(<FileList files={makeFiles(30)} />);
     expect(screen.queryByRole("navigation")).not.toBeInTheDocument();
   });
 
   it("shows a pager once there is more than one page", () => {
-    renderWithRouter(<FileList files={makeFiles(31)} refresh={() => {}} canManage={false} />);
+    renderWithRouter(<FileList files={makeFiles(31)} />);
     expect(screen.getByRole("navigation")).toBeInTheDocument();
     // Only the first 30 files are on page 1.
     expect(screen.getByText("0.jpg")).toBeInTheDocument();
@@ -34,7 +34,7 @@ describe("FileList", () => {
 
   it("shows the remaining files on the second page", async () => {
     const user = userEvent.setup();
-    renderWithRouter(<FileList files={makeFiles(31)} refresh={() => {}} canManage={false} />);
+    renderWithRouter(<FileList files={makeFiles(31)} />);
 
     await user.click(screen.getByRole("button", { name: "Go to page 2" }));
 
@@ -44,7 +44,7 @@ describe("FileList", () => {
 
   it("restores the page saved in sessionStorage", () => {
     sessionStorage.setItem("fileListPage", "2");
-    renderWithRouter(<FileList files={makeFiles(31)} refresh={() => {}} canManage={false} />);
+    renderWithRouter(<FileList files={makeFiles(31)} />);
 
     expect(screen.getByText("30.jpg")).toBeInTheDocument();
     expect(screen.queryByText("0.jpg")).not.toBeInTheDocument();
@@ -52,7 +52,7 @@ describe("FileList", () => {
 
   it("persists the current page to sessionStorage when it changes", async () => {
     const user = userEvent.setup();
-    renderWithRouter(<FileList files={makeFiles(31)} refresh={() => {}} canManage={false} />);
+    renderWithRouter(<FileList files={makeFiles(31)} />);
 
     await user.click(screen.getByRole("button", { name: "Go to page 2" }));
 
@@ -61,7 +61,7 @@ describe("FileList", () => {
 
   it("falls back to page 1 once the file list shrinks below the saved page", () => {
     sessionStorage.setItem("fileListPage", "2");
-    renderWithRouter(<FileList files={makeFiles(5)} refresh={() => {}} canManage={false} />);
+    renderWithRouter(<FileList files={makeFiles(5)} />);
 
     // Page 2 of only 5 files doesn't exist, so FileList resets to page 1.
     expect(screen.getByText("0.jpg")).toBeInTheDocument();
