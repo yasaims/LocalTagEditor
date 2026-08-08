@@ -11,6 +11,7 @@ import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
 import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 import { Link } from "react-router-dom";
 import { getDisplayName } from "../pathUtils";
+import VideoThumbnail from "./VideoThumbnail";
 
 // Base URL of backend API (default localhost). Read once at module scope: it is
 // baked in at build time, so it is not a value that can change while rendering.
@@ -46,10 +47,15 @@ function FileItem({ file }) {
     }
     if (file.thumbnail_type === "video") {
       return (
-        <video
-          controls
+        <VideoThumbnail
           src={`${api}/files/${file.id}/content`}
-          style={{ width: "100%", height: "100%", objectFit: "cover" }}
+          ariaLabel={file.path}
+          style={{
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+            display: "block",
+          }}
         />
       );
     }

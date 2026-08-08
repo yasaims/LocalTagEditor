@@ -21,15 +21,17 @@ describe("FileItem", () => {
     expect(screen.getByRole("img")).toHaveAttribute("src", "http://api.test/files/7/content");
   });
 
-  it("renders a <video> when thumbnail_type is video", () => {
+  it("renders a static-frame <video> when thumbnail_type is video", () => {
     const file = makeFile({ id: 8, thumbnail_type: "video" });
     const { container } = renderWithRouter(<FileItem file={file} />);
-    // The preview <video> has no accessible role or label -- FileItem.js
-    // doesn't give it one -- so there is no query for it besides direct
-    // DOM access.
+    // VideoThumbnail gives the <video> an aria-label, but MUI/jsdom don't
+    // expose a "video" ARIA role to query by, so direct DOM access is still
+    // needed here.
     // eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
     const video = container.querySelector("video");
-    expect(video).toHaveAttribute("src", "http://api.test/files/8/content");
+    expect(video).toHaveAttribute("src", "http://api.test/files/8/content#t=0.1");
+    expect(video).toHaveAttribute("preload", "metadata");
+    expect(video).not.toHaveAttribute("controls");
   });
 
   it("falls back to a type icon when there is no thumbnail", () => {

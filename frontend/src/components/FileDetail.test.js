@@ -78,6 +78,42 @@ describe("FileDetail", () => {
     expect(screen.getAllByAltText("3.jpg").length).toBeGreaterThan(0);
   });
 
+  it("still allows stepping through the gallery when the current item is a video", async () => {
+    const user = userEvent.setup();
+    const file = makeFile({
+      id: 11,
+      path: "C:\\albums\\trip",
+      type: "folder",
+      thumbnail_type: null,
+    });
+    const items = [
+      { name: "1.jpg", type: "image" },
+      { name: "2.mp4", type: "video" },
+    ];
+    mockApi({ "GET /files/11": file, "GET /files/11/items": items, "GET /tags": [] });
+    renderDetail(11);
+
+    const [firstImg] = await screen.findAllByAltText("1.jpg");
+    // eslint-disable-next-line testing-library/no-node-access
+    const [, nextZone] = firstImg.parentElement.querySelectorAll(":scope > div");
+    await user.click(nextZone);
+
+    // The main preview is now the video, with no accessible role/label query
+    // available besides direct DOM access (VideoThumbnail gives it an
+    // aria-label, but jsdom exposes no ARIA role for <video>).
+    // eslint-disable-next-line testing-library/no-node-access
+    const video = document.querySelector("video[aria-label='2.mp4']");
+    expect(video).toHaveAttribute("src", "http://api.test/files/11/content/2.mp4#t=0.1");
+
+    // The prev/next click zones must still be present (and clickable) even
+    // though the current item is a video -- there is no `controls` UI to
+    // protect from overlay clicks anymore.
+    // eslint-disable-next-line testing-library/no-node-access
+    const [prevZone] = video.parentElement.querySelectorAll(":scope > div");
+    await user.click(prevZone);
+    expect(screen.getAllByAltText("1.jpg").length).toBeGreaterThan(0);
+  });
+
   it("adds a typed tag and clears the input", async () => {
     const user = userEvent.setup();
     const file = makeFile({ id: 10, tags: [] });

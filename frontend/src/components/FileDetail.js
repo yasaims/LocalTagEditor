@@ -9,6 +9,7 @@ import Chip from "@mui/material/Chip";
 import TextField from "@mui/material/TextField";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { getDisplayName } from "../pathUtils";
+import VideoThumbnail from "./VideoThumbnail";
 
 // Use REACT_APP_API_URL when provided for network access. Read once at module
 // scope: it is baked in at build time, so it is not a value that can change
@@ -107,31 +108,31 @@ function FileDetail({ canManage = false, onDeleted }) {
           ) : (
             <video controls style={{ width: "100%", maxHeight: "100vh" }} src={src} />
           )}
-          {current.type !== "video" && (
+{current.type !== "video" && (
             <>
-              <Box
-                sx={{
-                  position: "absolute",
-                  top: 0,
-                  left: 0,
-                  bottom: 0,
-                  width: "50%",
-                  cursor: "pointer",
-                }}
-                onClick={handlePrev}
-              />
-              <Box
-                sx={{
-                  position: "absolute",
-                  top: 0,
-                  right: 0,
-                  bottom: 0,
-                  width: "50%",
-                  cursor: "pointer",
-                }}
-                onClick={handleNext}
-              />
-            </>
+          <Box
+            sx={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              bottom: 0,
+              width: "50%",
+              cursor: "pointer",
+            }}
+            onClick={handlePrev}
+          />
+          <Box
+            sx={{
+              position: "absolute",
+              top: 0,
+              right: 0,
+              bottom: 0,
+              width: "50%",
+              cursor: "pointer",
+            }}
+            onClick={handleNext}
+          />
+</>
           )}
         </Box>
       );
@@ -240,7 +241,7 @@ function FileDetail({ canManage = false, onDeleted }) {
                 {it.type === "image" ? (
                   <img src={src} alt={it.name} width={80} />
                 ) : (
-                  <video width={80} src={src} />
+                  <VideoThumbnail src={src} ariaLabel={it.name} width={80} />
                 )}
               </Box>
             );
