@@ -33,7 +33,7 @@ function App() {
   const isSmall = useMediaQuery("(max-width:600px)");
   const prefersDark = useMediaQuery("(prefers-color-scheme: dark)");
   const [mode, setMode] = useState(
-    () => localStorage.getItem(THEME_MODE_STORAGE_KEY) || (prefersDark ? "dark" : "light")
+    () => localStorage.getItem(THEME_MODE_STORAGE_KEY) || (prefersDark ? "dark" : "light"),
   );
   const theme = useMemo(() => getTheme(mode), [mode]);
 
@@ -116,11 +116,7 @@ function App() {
       </Box>
       <Typography variant="subtitle2">Item Type</Typography>
       <TypeSelector selected={selectedTypes} onChange={setSelectedTypes} />
-      <TagSelector
-        tags={tags}
-        selected={selectedTags}
-        onChange={setSelectedTags}
-      />
+      <TagSelector tags={tags} selected={selectedTags} onChange={setSelectedTags} />
     </Box>
   );
 
@@ -135,11 +131,14 @@ function App() {
                 <FileRegister onRegistered={fetchFiles} />
               </Box>
             )}
-            <FileList files={files} refresh={fetchFiles} canManage={canManage} />
+            <FileList files={files} />
           </>
         }
       />
-      <Route path="/files/:id" element={<FileDetail />} />
+      <Route
+        path="/files/:id"
+        element={<FileDetail canManage={canManage} onDeleted={fetchFiles} />}
+      />
     </Routes>
   );
 
@@ -152,15 +151,8 @@ function App() {
             <Drawer open={drawerOpen} onClose={() => setDrawerOpen(false)}>
               {sidebar}
             </Drawer>
-            <Box
-              id="content"
-              sx={{ flexGrow: 1, p: 2, overflow: "auto", width: "100%" }}
-            >
-              <Button
-                variant="outlined"
-                onClick={() => setDrawerOpen(true)}
-                sx={{ mb: 2 }}
-              >
+            <Box id="content" sx={{ flexGrow: 1, p: 2, overflow: "auto", width: "100%" }}>
+              <Button variant="outlined" onClick={() => setDrawerOpen(true)} sx={{ mb: 2 }}>
                 Tags
               </Button>
               {routes}

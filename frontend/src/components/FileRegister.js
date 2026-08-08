@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
-import TextField from '@mui/material/TextField';
-import Button from '@mui/material/Button';
-import Stack from '@mui/material/Stack';
-
+import React, { useState } from "react";
+import TextField from "@mui/material/TextField";
+import Button from "@mui/material/Button";
+import Stack from "@mui/material/Stack";
+import ArrowCircleUpIcon from "@mui/icons-material/ArrowCircleUp";
 // Strip a single pair of surrounding double quotes, as produced by
 // "Copy as path" in Windows Explorer.
 function stripSurroundingQuotes(value) {
@@ -14,19 +14,19 @@ function stripSurroundingQuotes(value) {
 }
 
 function FileRegister({ onRegistered }) {
-  const [path, setPath] = useState('');
+  const [path, setPath] = useState("");
   // Backend base URL; override with REACT_APP_API_URL for remote access
-  const api = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+  const api = process.env.REACT_APP_API_URL || "http://localhost:5000";
 
   const register = async () => {
     const cleanPath = stripSurroundingQuotes(path);
     if (!cleanPath) return;
     await fetch(`${api}/files`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ path: cleanPath })
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ path: cleanPath }),
     });
-    setPath('');
+    setPath("");
     onRegistered();
   };
 
@@ -40,16 +40,28 @@ function FileRegister({ onRegistered }) {
 
   return (
     <Stack direction="row" spacing={1}>
+      <Button
+        variant="outlined"
+        aria-label="参照"
+        sx={{
+          border: "none",
+          borderColor: "divider",
+          minWidth: "24px",
+          height: "fill",
+          p: 0,
+        }}
+        onClick={browse}
+      >
+        <ArrowCircleUpIcon />
+      </Button>
       <TextField
         value={path}
-        onChange={e => setPath(e.target.value)}
+        onChange={(e) => setPath(e.target.value)}
         placeholder="file path"
         size="small"
         sx={{ width: 300 }}
       />
-      <Button variant="outlined" onClick={browse}>
-        参照
-      </Button>
+
       <Button variant="contained" onClick={register}>
         Register
       </Button>

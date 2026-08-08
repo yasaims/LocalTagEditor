@@ -2,7 +2,6 @@ import React from "react";
 import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
 import Chip from "@mui/material/Chip";
-import Button from "@mui/material/Button";
 import Stack from "@mui/material/Stack";
 import Box from "@mui/material/Box";
 import FolderIcon from "@mui/icons-material/Folder";
@@ -11,6 +10,8 @@ import VideoLibraryIcon from "@mui/icons-material/VideoLibrary";
 import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
 import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 import { Link } from "react-router-dom";
+import { getDisplayName } from "../pathUtils";
+import VideoThumbnail from "./VideoThumbnail";
 
 // Base URL of backend API (default localhost). Read once at module scope: it is
 // baked in at build time, so it is not a value that can change while rendering.
@@ -25,14 +26,8 @@ const TYPE_ICONS = {
   other: InsertDriveFileIcon,
 };
 
-function FileItem({ file, refresh, canManage }) {
-  const deleteItem = async () => {
-    if (!window.confirm("Delete this entry?")) return;
-    await fetch(`${api}/files/${file.id}`, { method: "DELETE" });
-    refresh();
-  };
-
-  const name = file.path.split("\\").pop();
+function FileItem({ file }) {
+  const name = getDisplayName(file.path);
   const TypeIcon = TYPE_ICONS[file.type] || InsertDriveFileIcon;
 
   const preview = () => {
@@ -52,10 +47,15 @@ function FileItem({ file, refresh, canManage }) {
     }
     if (file.thumbnail_type === "video") {
       return (
-        <video
-          controls
+        <VideoThumbnail
           src={`${api}/files/${file.id}/content`}
-          style={{ width: "100%", height: "100%", objectFit: "cover" }}
+          ariaLabel={file.path}
+          style={{
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+            display: "block",
+          }}
         />
       );
     }
@@ -63,11 +63,13 @@ function FileItem({ file, refresh, canManage }) {
   };
 
   return (
-    <Paper sx={{ p: 1, height: "100%", display: "flex", flexDirection: "column" }}>
+    <Paper
+      component={Link}
+      to={`/files/${file.id}`}
+      sx={{ p: 1, height: "100%", display: "flex", flexDirection: "column" }}
+    >
       <Box sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}>
-        <Box
-          sx={{ display: "flex", alignItems: "center", gap: 0.5, minWidth: 0 }}
-        >
+        <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, minWidth: 0 }}>
           <TypeIcon fontSize="small" color="primary" />
           <Typography
             variant="subtitle2"
@@ -80,21 +82,8 @@ function FileItem({ file, refresh, canManage }) {
             {name}
           </Typography>
         </Box>
-        {canManage && (
-          <Button
-            variant="contained"
-            color="error"
-            size="small"
-            sx={{ minWidth: "24px", height: "24px", p: 0 }}
-            onClick={deleteItem}
-          >
-            X
-          </Button>
-        )}
       </Box>
       <Box
-        component={Link}
-        to={`/files/${file.id}`}
         sx={{
           display: "flex",
           alignItems: "center",
