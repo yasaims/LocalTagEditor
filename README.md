@@ -28,11 +28,6 @@ generated placeholder graphics, not real photos.
 
 ### Library
 
-Registered files are shown as a grid of thumbnails. Images and videos are
-previewed inline, while folders fall back to the first media file inside them
-and other types show an icon for their kind. The path bar at the top only
-appears when the connection is allowed to register files (see `WRITE_MODE`).
-
 ![Library view listing tagged images, a folder, a video, a PDF and a text file](docs/images/file-list.png)
 
 ### Filtering by tag and item type
